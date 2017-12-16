@@ -44,6 +44,18 @@
             margin-bottom: 40px;
             z-index: 900;
         }
+        .demo-drawer::-webkit-scrollbar {
+            width:4px;
+            border: 3px solid #EEEEEE;
+        }
+        .demo-drawer ::-webkit-scrollbar-track {
+             background-color: #b46868;
+         } /* the new scrollbar will have a flat appearance with the set background color */
+
+        .demo-drawer::-webkit-scrollbar-thumb {
+            background-color: #9E9E9E
+        }
+
     </style>
 </head>
 <body>
@@ -91,12 +103,12 @@
         </header>-->
         <nav class="demo-navigation mdl-navigation mdl-color--indigo-600">
             <a class="mdl-navigation__link" href="">
-                <i class="mdl-color-text--white-400 material-icons" role="presentation">home</i>
-                Home
+                <i class="mdl-color-text--white-400 material-icons" role="presentation">tv</i>
+                Status
             </a>
             <a class="mdl-navigation__link" href="">
                 <i class="mdl-color-text--white-400 material-icons" role="presentation">inbox</i>
-                Inbox
+                Interfaces
             </a>
             <a class="mdl-navigation__link" href="">
                 <i class="mdl-color-text--white-400 material-icons" role="presentation">delete</i>
