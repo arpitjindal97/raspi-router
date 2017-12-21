@@ -159,9 +159,9 @@ _:-ms-input-placeholder, :root .demo-graph {
   align-items: center;
 }
 
-/*custom
+/*custom*/
 
-.mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
-  padding: 16px 30px;
+  .demo-layout .demo-navigation .mdl-navigation__link {
+  padding: 13px 30px;
 }
-*/
+
