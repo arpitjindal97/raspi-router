@@ -84,7 +84,7 @@ html, body {
   color: #EF3C79;
 }
 .demo-graphs {
-  padding: 16px 32px;
+  padding: 16px 16px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -164,4 +164,5 @@ _:-ms-input-placeholder, :root .demo-graph {
   .demo-layout .demo-navigation .mdl-navigation__link {
   padding: 13px 30px;
 }
+
 

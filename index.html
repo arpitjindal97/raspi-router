@@ -32,6 +32,7 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="stylesheets/master.35.min.css">
     <link rel="stylesheet" href="stylesheets/material.indigo-pink.min.css">
     <link rel="stylesheet" href="stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -171,7 +172,7 @@
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
         <div class="mdl-grid ">
-            <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid">
+            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid">
                 <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Basic Information</h2>
 
                 <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
@@ -222,7 +223,7 @@
                     </div>
                 </div>
             </div>
-            <div class="demo-cards mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid ">
+            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid ">
                 <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Operational Mode</h2>
 
                 <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
@@ -232,7 +233,8 @@
                         <h6 class="mdl-cell--2-col">:</h6>
                         <div class="mdl-cell--6-col ">
                             <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-1">
-                                <input type="radio" id="option-1" class="mdl-radio__button" name="mode" value="1" checked>
+                                <input type="radio" id="option-1" class="mdl-radio__button" name="mode" value="1"
+                                       checked>
                                 <span class="mdl-radio__label">Default</span>
                             </label>
                             <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-2">
@@ -246,8 +248,9 @@
                         <h6 class="mdl-cell--2-col">:</h6>
                         <div class="mdl-cell--6-col ">
                             <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-3">
-                                <input type="radio" id="option-3" class="mdl-radio__button" name="route" value="1" checked>
-                                <span class="mdl-radio__label">Router</span>
+                                <input type="radio" id="option-3" class="mdl-radio__button" name="route" value="1"
+                                       checked>
+                                <span class="mdl-radio__label">NAT</span>
                             </label>
                             <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-4">
                                 <input type="radio" id="option-4" class="mdl-radio__button" name="route" value="2">
@@ -259,26 +262,78 @@
                         <h6 class="mdl-cell--4-col">Routing Interface</h6>
                         <h6 class="mdl-cell--2-col">:</h6>
                         <div class="mdl-cell--6-col ">
-                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-3">
-                                <input type="radio" id="option-3" class="mdl-radio__button" name="route" value="1" checked>
-                                <span class="mdl-radio__label">Router</span>
-                            </label>
-                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-4">
-                                <input type="radio" id="option-4" class="mdl-radio__button" name="route" value="2">
-                                <span class="mdl-radio__label">Bridge</span>
-                            </label>
+                            <div class=" ">
+                                <select id="route_int" name="route_int">
+                                    <option value=""></option>
+                                    <option value="option1">eth0</option>
+                                    <option value="option2">wlan1</option>
+                                    <option value="option3">eth1</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
-                <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
-                    <use xlink:href="#chart"/>
-                    ';pu
-                </svg>
-                <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
-                    <use xlink:href="#chart"/>
-                </svg>
+            <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--7-col mdl-grid">
+
+                <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">WiFi Configuration</h2>
+                <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">Connected to</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">Arpit-Wifi-2</h6>
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">AP MAC Address</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">e8:de:27:58:c3:4c</h6>
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">Bit Rate</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">43.3</h6>
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">Frequency</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">2462 Mhz</h6>
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">Link Quality</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">70/70</h6>
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <h6 class="mdl-cell--5-col">Channel</h6>
+                        <h6 class="mdl-cell--2-col">:</h6>
+                        <h6 class="mdl-cell--5-col">11</h6>
+                    </div>
+
+                    <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">WPA Supplicant config file</h6>
+                    <div class="mdl-cell--12-col code-only">
+                        <textarea style="border:1px solid black;height:200px;width:100%;overflow-y: scroll;"
+                                  class="mdl-grid CodeMirror cm-s-q-dark CodeMirror-wrap">this is config file</textarea>
+
+                    </div>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <div class="mdl-cell--4-col"></div>
+                        <div class="mdl-cell--2-col">
+
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                                    >Edit
+                            </button>
+                        </div>
+                        <div class="mdl-cell--2-col">
+
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                                    >Save
+                            </button>
+                        </div>
+                        <div class="mdl-cell--4-col"></div>
+                    </div>
+
+                </div>
+
             </div>
             <div class="demo-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
                 <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
