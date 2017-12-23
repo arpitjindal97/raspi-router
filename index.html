@@ -32,7 +32,6 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="stylesheets/master.35.min.css">
     <link rel="stylesheet" href="stylesheets/material.indigo-pink.min.css">
     <link rel="stylesheet" href="stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -172,7 +171,7 @@
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
         <div class="mdl-grid ">
-            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid">
+            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid--no-spacing">
                 <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Basic Information</h2>
 
                 <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
@@ -223,7 +222,7 @@
                     </div>
                 </div>
             </div>
-            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid ">
+            <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid--no-spacing ">
                 <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Operational Mode</h2>
 
                 <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
@@ -274,7 +273,7 @@
                     </div>
                 </div>
             </div>
-            <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--7-col mdl-grid">
+            <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--7-col mdl-grid--no-spacing">
 
                 <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">WiFi Configuration</h2>
                 <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
@@ -310,9 +309,10 @@
                     </div>
 
                     <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">WPA Supplicant config file</h6>
-                    <div class="mdl-cell--12-col code-only">
-                        <textarea style="border:1px solid black;height:200px;width:100%;overflow-y: scroll;"
-                                  class="mdl-grid CodeMirror cm-s-q-dark CodeMirror-wrap">this is config file</textarea>
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <textarea style="border:0px solid black;background:#2b2b2b;color:#fff;
+                        height:200px;width:100%;overflow-y: scroll;"
+                                  class="mdl-grid">this is config file</textarea>
 
                     </div>
                     <div class="mdl-cell--12-col mdl-grid">
@@ -335,17 +335,61 @@
                 </div>
 
             </div>
-            <div class="demo-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
-                <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
-                    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-                        <h2 class="mdl-card__title-text">Updates</h2>
+            <div class="demo-cards mdl-cell--5-col mdl-cell--8-col-tablet  mdl-grid--no-spacing">
+                <div class="demo-graphs mdl-card mdl-shadow--2dp mdl-cell mdl-grid mdl-cell--5-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
+
+                    <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">IPv4 Config</h2>
+
+                    <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
+
+                        <div class="mdl-cell--12-col mdl-grid">
+                            <h6 class="mdl-cell--4-col">Mode</h6>
+                            <h6 class="mdl-cell--2-col">:</h6>
+                            <div class="mdl-cell--7-col">
+                                <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-5">
+                                    <input type="radio" id="option-5" class="mdl-radio__button" name="mode" value="5"
+                                           checked>
+                                    <span class="mdl-radio__label">DHCP</span>
+                                </label>
+                                <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-6">
+                                    <input type="radio" id="option-6" class="mdl-radio__button" name="mode" value="6">
+                                    <span class="mdl-radio__label">Static</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mdl-cell--12-col mdl-grid">
+                            <h6 class="mdl-cell--4-col">IP Address</h6>
+                            <h6 class="mdl-cell--2-col">:</h6>
+                            <div class="mdl-cell--6-col ">
+                                <input class="mdl-textfield__input"/>
+                            </div>
+                        </div>
+                        <div class="mdl-cell--12-col mdl-grid">
+                            <h6 class="mdl-cell--4-col">Subnet Mask</h6>
+                            <h6 class="mdl-cell--2-col">:</h6>
+                            <div class="mdl-cell--6-col ">
+                                <input class="mdl-textfield__input"/>
+                            </div>
+                        </div>
+                        <div class="mdl-cell--12-col mdl-grid">
+                            <h6 class="mdl-cell--4-col">Gateway</h6>
+                            <h6 class="mdl-cell--2-col">:</h6>
+                            <div class="mdl-cell--6-col ">
+                                <input class="mdl-textfield__input"/>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-                        Non dolore elit adipisicing ea reprehenderit consectetur culpa.
+                    <div class="mdl-cell--12-col mdl-grid">
+                        <div class="mdl-cell--5-col"></div>
+                        <div class="mdl-cell--2-col">
+
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+                                Save
+                            </button>
+                        </div>
+                        <div class="mdl-cell--5-col"></div>
                     </div>
-                    <div class="mdl-card__actions mdl-card--border">
-                        <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-                    </div>
+
                 </div>
                 <div class="demo-separator mdl-cell--1-col"></div>
                 <div class="demo-options mdl-card mdl-color--deep-purple-500 mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop">
@@ -455,9 +499,8 @@
 
 <script src="javascript/material.min.js"></script>
 <script src="javascript/jquery-3.2.1.min.js"></script>
-
-<script src="javascript/popper.min.js" crossorigin="anonymous"></script>
-<script src="javascript/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="javascript/popper.min.js"></script>
+<script src="javascript/bootstrap.min.js"></script>
 <script src="javascript/javascript.js"></script>
 </body>
 </html>
