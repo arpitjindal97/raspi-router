@@ -21,7 +21,7 @@ $('#interface-toggle').click(function(){
 
 $(document).ready(function(){
 
-    var content="interface=wlan0\n" +
+    /*var content="interface=wlan0\n" +
         "driver=nl80211\n" +
         "ssid=Raspberry-Hotspot\n" +
         "hw_mode=g\n" +
@@ -47,6 +47,24 @@ $(document).ready(function(){
             "bogus-priv\n" +
             "dhcp-range=192.168.2.2,192.168.2.100,12h";
 
-        $('#dnsmasq_config').val(content);
+        $('#dnsmasq_config').val(content);*/
+
+    LoadHtmlDiv("content_div","interface.html")
 
 });
+
+function LoadHtmlDiv(div_id,html_file)
+{
+    var con = document.getElementById(div_id)
+        ,   xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function (e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            con.innerHTML = xhr.responseText;
+        }
+    }
+
+    xhr.open("GET", html_file, true);
+    xhr.setRequestHeader('Content-type', 'text/html');
+    xhr.send();
+}
