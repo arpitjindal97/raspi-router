@@ -1,24 +1,10 @@
 $('#interface-toggle').click(function(){
 
-    var str = document.getElementById("interface-toggle").getAttribute("for");
-
-
-    document.getElementById(str.substr(1,str.length)).innerHTML=
-
-    "<ul class=\"flex-column nav dropdown\" >\n" +
-        "\n" +
-        "                    <li class=\"dropdown-item\">wlan0</li>\n" +
-        "                    <li class=\"dropdown-item\">eth0</li>\n" +
-        "                    <li class=\"dropdown-item\">lo</li>\n" +
-        "\n" +
-        "                </ul>";
-
-
-
-    $(str).collapse('toggle');
+    $("#interface-list").collapse('toggle');
 
 });
 
+var server_ip="http://103.43.103.19:8084";
 $(document).ready(function(){
 
     /*var content="interface=wlan0\n" +
@@ -49,9 +35,55 @@ $(document).ready(function(){
 
         $('#dnsmasq_config').val(content);*/
 
-    LoadHtmlDiv("content_div","interface.html")
+    LoadHtmlDiv("content_div","device_info.html")
+
+    $.getJSON(server_ip+'/device_info', function(data) {
+
+        document.getElementById("distID").innerHTML = data["DistributionId"];
+        document.getElementById("desc").innerHTML = data["Description"];
+        document.getElementById("release").innerHTML = data["Release"];
+        document.getElementById("codename").innerHTML = data["Codename"];
+        document.getElementById("hostname").innerHTML = data["Hostname"];
+        document.getElementById("kernel_rel").innerHTML = data["KernelRelease"];
+        document.getElementById("arch").innerHTML = data["Architecture"];
+        document.getElementById("model_name").innerHTML = data["ModelName"];
+        document.getElementById("cores").innerHTML = data["CPUs"];
+        document.getElementById("local_time").innerHTML = data["LocalTime"];
+        document.getElementById("timezone").innerHTML = data["TimeZone"];
+        document.getElementById("up_time").innerHTML = data["UpTime"];
+        document.getElementById("up_since").innerHTML = data["UpSince"];
+
+    });
+
+
+    $.getJSON(server_ip+'/interfaces', function(data) {
+
+        document.getElementById("interface-list").innerHTML=
+
+            "<ul class=\"flex-column nav dropdown\" >\n" ;
+
+
+        for(var i=0;i<data.length;i++){
+            document.getElementById("interface-list").innerHTML+=
+
+                "<li class=\"dropdown-item\" id='interface-item'>"+data[i]["Name"]+"</li>\n";
+        }
+
+        document.getElementById("interface-list").innerHTML+= "</ul>";
+
+
+    });
 
 });
+
+
+
+$("#interface-item").click(function(){
+
+    console.log(this.innerHTML);
+    console.log("not working")
+});
+
 
 function LoadHtmlDiv(div_id,html_file)
 {
