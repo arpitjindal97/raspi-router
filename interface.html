@@ -6,47 +6,47 @@
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Interface Name</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">wlan0</h6>
+                <h6 class="mdl-cell--5-col" id="interface_name"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">IP Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">192.168.0.3/24</h6>
+                <h6 class="mdl-cell--5-col" id="ip_addr"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Broadcast Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">192.168.0.255</h6>
+                <h6 class="mdl-cell--5-col" id="broad_addr"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Gateway Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">192.168.1.1</h6>
+                <h6 class="mdl-cell--5-col" id="gate_addr"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">MAC Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">b8:27:eb:0e:97:c1</h6>
+                <h6 class="mdl-cell--5-col" id="mac_addr"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Received Bytes</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">14062026</h6>
+                <h6 class="mdl-cell--5-col" id="rec_bytes"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Received Packets</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">48768</h6>
+                <h6 class="mdl-cell--5-col" id="rec_packs"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Transmitted Bytes</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">7008651</h6>
+                <h6 class="mdl-cell--5-col" id="trans_bytes"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Transmitted Packets</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">44463</h6>
+                <h6 class="mdl-cell--5-col" id="trans_packs"></h6>
             </div>
         </div>
     </div>
@@ -59,13 +59,12 @@
                 <h6 class="mdl-cell--4-col">Mode</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
                 <div class="mdl-cell--6-col ">
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-1">
-                        <input type="radio" id="option-1" class="mdl-radio__button" name="mode" value="1"
-                               checked>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="mode_default">
+                        <input type="radio" id="mode_default" class="mdl-radio__button" name="mode" value="1">
                         <span class="mdl-radio__label">Default</span>
                     </label>
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-2">
-                        <input type="radio" id="option-2" class="mdl-radio__button" name="mode" value="2">
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="mode_hotspot">
+                        <input type="radio" id="mode_hotspot" class="mdl-radio__button" name="mode" value="2">
                         <span class="mdl-radio__label">Hotspot</span>
                     </label>
                 </div>
@@ -74,13 +73,13 @@
                 <h6 class="mdl-cell--4-col">Route Mode</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
                 <div class="mdl-cell--6-col ">
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-3">
-                        <input type="radio" id="option-3" class="mdl-radio__button" name="route" value="1"
-                               checked>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="route_mode_nat">
+                        <input type="radio" id="route_mode_nat" class="mdl-radio__button" name="route" value="1"
+                               >
                         <span class="mdl-radio__label">NAT</span>
                     </label>
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="option-4">
-                        <input type="radio" id="option-4" class="mdl-radio__button" name="route" value="2">
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="route_mode_bridge">
+                        <input type="radio" id="route_mode_bridge" class="mdl-radio__button" name="route" value="2">
                         <span class="mdl-radio__label">Bridge</span>
                     </label>
                 </div>
@@ -91,17 +90,26 @@
                 <div class="mdl-cell--6-col ">
                     <div class=" ">
                         <select id="route_int" name="route_int">
-                            <option value=""></option>
-                            <option value="option1">eth0</option>
-                            <option value="option2">wlan1</option>
-                            <option value="option3">eth1</option>
                         </select>
                     </div>
                 </div>
             </div>
+            <div class="mdl-cell--12-col mdl-grid"></div>
+            <div class="mdl-cell--12-col mdl-grid">
+                <div class="mdl-cell--5-col"></div>
+
+                <div class="mdl-cell--2-col">
+
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                    >Save
+                    </button>
+                </div>
+            </div>
+
+
         </div>
     </div>
-    <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--7-col mdl-grid"
+    <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--7-col mdl-grid" id="wifi_config_div"
     >
 
         <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">WiFi Configuration</h2>
@@ -109,53 +117,47 @@
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Connected to</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">Arpit-Wifi-2</h6>
+                <h6 class="mdl-cell--5-col" id="conn_to"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">AP MAC Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">e8:de:27:58:c3:4c</h6>
+                <h6 class="mdl-cell--5-col" id="ap_mac_addr"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Bit Rate</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">43.3</h6>
+                <h6 class="mdl-cell--5-col" id="bit_rate"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Frequency</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">2462 Mhz</h6>
+                <h6 class="mdl-cell--5-col" id="frequency"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Link Quality</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">70/70</h6>
+                <h6 class="mdl-cell--5-col" id="link_quality"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Channel</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col">11</h6>
+                <h6 class="mdl-cell--5-col" id="channel"></h6>
             </div>
 
             <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">WPA Supplicant config file</h6>
             <div class="mdl-cell--12-col mdl-grid">
                         <textarea style="border:0px solid black;background:#2b2b2b;color:#fff;
                         height:200px;width:100%;overflow-y: scroll;"
-                                  class="mdl-grid">this is config file</textarea>
+                                  class="mdl-grid" id="wpa_config_area"></textarea>
 
             </div>
             <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--4-col"></div>
-                <div class="mdl-cell--3-col">
-
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    >Edit
-                    </button>
-                </div>
+                <div class="mdl-cell--5-col"></div>
                 <div class="mdl-cell--2-col">
 
                     <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    >Save
+                    >Update
                     </button>
                 </div>
                 <div class="mdl-cell--3-col"></div>
@@ -164,7 +166,7 @@
         </div>
 
     </div>
-    <div class="demo-cards mdl-cell mdl-cell--5-col mdl-cell--8-col-tablet mdl-grid--no-spacing">
+    <div class="demo-cards mdl-cell mdl-cell--5-col mdl-cell--8-col-tablet mdl-grid--no-spacing" id="ip_mode_default_div">
         <div class="demo-graphs mdl-card mdl-shadow--2dp  mdl-grid mdl-cell--5-col
                 mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
 
@@ -177,14 +179,14 @@
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--7-col">
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="option-5">
-                            <input type="radio" id="option-5" class="mdl-radio__button" name="mode" value="5"
-                                   checked>
+                               for="ip_mode_dhcp_default">
+                            <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default" value="7"
+                                   >
                             <span class="mdl-radio__label">DHCP</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="option-6">
-                            <input type="radio" id="option-6" class="mdl-radio__button" name="mode" value="6">
+                               for="ip_mode_static_default">
+                            <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default" value="8">
                             <span class="mdl-radio__label">Static</span>
                         </label>
                     </div>
@@ -193,14 +195,14 @@
                     <h6 class="mdl-cell--4-col">IP Address</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input"/>
+                        <input class="mdl-textfield__input" id="ip_addr_static_default"/>
                     </div>
                 </div>
                 <div class="mdl-cell--12-col mdl-grid">
                     <h6 class="mdl-cell--4-col">Subnet Mask</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input"/>
+                        <input class="mdl-textfield__input" id="subnet_static_default"/>
                     </div>
                 </div>
             </div>
@@ -209,7 +211,7 @@
                 <div class="mdl-cell--2-col">
 
                     <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                        Save
+                        Update
                     </button>
                 </div>
                 <div class="mdl-cell--5-col"></div>
@@ -220,7 +222,7 @@
     </div>
 
 
-    <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col mdl-grid--no-spacing">
+    <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--6-col mdl-grid--no-spacing" id="hostapd_div">
 
         <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">HostAPD Configuration</h2>
         <div style="padding:5px 10px" class="mdl-cell--12-col mdl-grid">
@@ -257,7 +259,7 @@
     </div>
 
     <div class="demo-cards mdl-cell--6-col mdl-grid">
-        <div class="mdl-card mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--12-col mdl-grid">
+        <div class="mdl-card mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--12-col mdl-grid" id="dnsmasq_div">
 
             <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Dnsmasq Configuration</h2>
             <div style="padding:5px 10px" class="mdl-cell--12-col mdl-grid">
@@ -292,7 +294,7 @@
 
         <!--<div class="demo-separator mdl-cell--1-col"></div>-->
         <div class="demo-options mdl-card  mdl-shadow--2dp mdl-cell
-                mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop">
+                mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop" id="ip_mode_hotspot_div">
 
             <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">IPv4 Config</h2>
 
@@ -303,14 +305,14 @@
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--7-col">
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="option-5">
-                            <input type="radio" id="option-5" class="mdl-radio__button" name="mode" value="5"
+                               for="ip_mode_dhcp_hotspot">
+                            <input type="radio" id="ip_mode_dhcp_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="9"
                                    checked>
                             <span class="mdl-radio__label">DHCP</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="option-6">
-                            <input type="radio" id="option-6" class="mdl-radio__button" name="mode" value="6">
+                               for="ip_mode_static_hotspot">
+                            <input type="radio" id="ip_mode_static_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="10">
                             <span class="mdl-radio__label">Static</span>
                         </label>
                     </div>
@@ -319,14 +321,14 @@
                     <h6 class="mdl-cell--4-col">IP Address</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input"/>
+                        <input class="mdl-textfield__input" id="ip_addr_static_hotspot"/>
                     </div>
                 </div>
                 <div class="mdl-cell--12-col mdl-grid">
                     <h6 class="mdl-cell--4-col">Subnet Mask</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input"/>
+                        <input class="mdl-textfield__input" id="subnet_static_hotspot"/>
                     </div>
                 </div>
                 <div class="mdl-cell--12-col mdl-grid">

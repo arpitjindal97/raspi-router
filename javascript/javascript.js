@@ -4,36 +4,12 @@ $('#interface-toggle').click(function(){
 
 });
 
-var server_ip="http://103.43.103.19:8084";
-$(document).ready(function(){
 
-    /*var content="interface=wlan0\n" +
-        "driver=nl80211\n" +
-        "ssid=Raspberry-Hotspot\n" +
-        "hw_mode=g\n" +
-        "ieee80211n=1\n" +
-        "wmm_enabled=1\n" +
-        "macaddr_acl=0\n" +
-        "ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]\n" +
-        "channel=6\n" +
-        "auth_algs=1\n" +
-        "ignore_broadcast_ssid=0\n" +
-        "wpa=2\n" +
-        "wpa_key_mgmt=WPA-PSK\n" +
-        "wpa_passphrase=raspberry\n" +
-        "rsn_pairwise=CCMP";
+$('#status').click(function() {
+    fill_status_page();
+});
 
-        $('#hostapd_config').val(content);
-
-
-        content="interface=wlan0\n" +
-            "bind-interfaces\n" +
-            "server=8.8.8.8\n" +
-            "domain-needed\n" +
-            "bogus-priv\n" +
-            "dhcp-range=192.168.2.2,192.168.2.100,12h";
-
-        $('#dnsmasq_config').val(content);*/
+function fill_status_page(){
 
     LoadHtmlDiv("content_div","device_info.html")
 
@@ -54,7 +30,14 @@ $(document).ready(function(){
         document.getElementById("up_since").innerHTML = data["UpSince"];
 
     });
+}
 
+
+var server_ip="http://192.168.1.42:8084";
+$(document).ready(function(){
+
+
+    fill_status_page();
 
     $.getJSON(server_ip+'/interfaces', function(data) {
 
@@ -66,7 +49,7 @@ $(document).ready(function(){
         for(var i=0;i<data.length;i++){
             document.getElementById("interface-list").innerHTML+=
 
-                "<li class=\"dropdown-item\" id='interface-item'>"+data[i]["Name"]+"</li>\n";
+                "<li class=\"dropdown-item\" id=\"interface-item\" onclick='interface_item_clicked(this)'>"+data[i]["Name"]+"</li>\n";
         }
 
         document.getElementById("interface-list").innerHTML+= "</ul>";
@@ -78,11 +61,101 @@ $(document).ready(function(){
 
 
 
-$("#interface-item").click(function(){
 
-    console.log(this.innerHTML);
-    console.log("not working")
-});
+function interface_item_clicked(element) {
+
+    LoadHtmlDiv("content_div","interface.html");
+
+    $.getJSON(server_ip+'/interfaces', function(data) {
+
+        var i;
+
+        document.getElementById("route_int").innerHTML="<option value='' id='route_int_'></option>";
+
+        for(var j=0;j<data.length;j++)
+        {
+            if(data[j]["Name"] == element.innerHTML)
+            {
+                i=j;
+                continue;
+            }
+            document.getElementById("route_int").innerHTML+=
+                "<option value=\""  +data[j]["Name"]+
+                "\" id='route_int_"+data[j]["Name"]+"'>"  +data[j]["Name"]+  "</option>";
+        }
+
+        document.getElementById("interface_name").innerHTML = data[i]["Name"];
+        document.getElementById("ip_addr").innerHTML = data[i]["Info"]["IpAddress"];
+        document.getElementById("broad_addr").innerHTML = data[i]["Info"]["BroadcastAddress"];
+        document.getElementById("gate_addr").innerHTML = data[i]["Info"]["Gateway"];
+        document.getElementById("mac_addr").innerHTML = data[i]["Info"]["MacAddress"];
+        document.getElementById("rec_bytes").innerHTML = data[i]["Info"]["RecvBytes"];
+        document.getElementById("rec_packs").innerHTML = data[i]["Info"]["RecvPackts"];
+        document.getElementById("trans_bytes").innerHTML = data[i]["Info"]["TransBytes"];
+        document.getElementById("trans_packs").innerHTML = data[i]["Info"]["TransPackts"];
+
+        document.getElementById("route_mode_"+data[i]["RouteMode"]).setAttribute("checked","checked")
+
+        document.getElementById("route_int_"+data[i]["RouteInterface"]).setAttribute("selected","selected")
+
+        document.getElementById("conn_to").innerHTML = data[i]["Info"]["ConntectedTo"];
+        document.getElementById("ap_mac_addr").innerHTML = data[i]["Info"]["ApMacAddr"];
+        document.getElementById("bit_rate").innerHTML = data[i]["Info"]["BitRate"];
+        document.getElementById("frequency").innerHTML = data[i]["Info"]["Frequency"];
+        document.getElementById("link_quality").innerHTML = data[i]["Info"]["LinkQuality"];
+        document.getElementById("channel").innerHTML = data[i]["Info"]["Channel"];
+
+        $("#wpa_config_area").val(data[i]["Wpa"]);
+        $('#hostapd_config').val(data[i]["Hostapd"]);
+        $('#dnsmasq_config').val(data[i]["Dnsmasq"]);
+
+
+        document.getElementById("mode_default").onclick = function(){
+
+            document.getElementById("dnsmasq_div").setAttribute("style","display:none");
+            document.getElementById("hostapd_div").setAttribute("style","display:none");
+            document.getElementById("ip_mode_hotspot_div").setAttribute("style","display:none");
+            document.getElementById("wifi_config_div").removeAttribute("style");
+            document.getElementById("ip_mode_default_div").removeAttribute("style");
+            document.getElementById("route_mode_nat").setAttribute("disabled","");
+            document.getElementById("route_mode_bridge").setAttribute("disabled","");
+            document.getElementById("route_int").setAttribute("disabled","");
+
+        };
+
+        document.getElementById("mode_hotspot").onclick = function(){
+
+            document.getElementById("wifi_config_div").setAttribute("style","display:none");
+            document.getElementById("ip_mode_default_div").setAttribute("style","display:none");
+            document.getElementById("dnsmasq_div").removeAttribute("style");
+            document.getElementById("hostapd_div").removeAttribute("style");
+            document.getElementById("ip_mode_hotspot_div").removeAttribute("style");
+            document.getElementById("route_mode_nat").removeAttribute("disabled");
+            document.getElementById("route_mode_bridge").removeAttribute("disabled");
+            document.getElementById("route_int").removeAttribute("disabled");
+
+        };
+
+        document.getElementById("mode_"+data[i]["Mode"]).click()
+
+        document.getElementById("ip_mode_dhcp_default").onclick = function(){
+
+            document.getElementById("ip_addr_static_default").setAttribute("disabled","");
+            document.getElementById("subnet_static_default").setAttribute("disabled","");
+        }
+        document.getElementById("ip_mode_static_default").onclick = function(){
+
+            document.getElementById("ip_addr_static_default").removeAttribute("disabled");
+            document.getElementById("subnet_static_default").removeAttribute("disabled");
+        }
+
+
+        document.getElementById("ip_mode_"+data[i]["IpModes"]+"_"+data[i]["Mode"]).click();
+        document.getElementById("ip_addr_static_"+data[i]["Mode"]).setAttribute("value",data[i]["IpAddress"]);
+        document.getElementById("subnet_static_"+data[i]["Mode"]).setAttribute("value",data[i]["SubnetMask"]);
+
+    });
+}
 
 
 function LoadHtmlDiv(div_id,html_file)
