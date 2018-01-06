@@ -60,11 +60,11 @@
                 <h6 class="mdl-cell--2-col">:</h6>
                 <div class="mdl-cell--6-col ">
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="mode_default">
-                        <input type="radio" id="mode_default" class="mdl-radio__button" name="mode" value="1">
+                        <input type="radio" id="mode_default" class="mdl-radio__button" name="mode" value="default">
                         <span class="mdl-radio__label">Default</span>
                     </label>
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="mode_hotspot">
-                        <input type="radio" id="mode_hotspot" class="mdl-radio__button" name="mode" value="2">
+                        <input type="radio" id="mode_hotspot" class="mdl-radio__button" name="mode" value="hotspot">
                         <span class="mdl-radio__label">Hotspot</span>
                     </label>
                 </div>
@@ -74,12 +74,12 @@
                 <h6 class="mdl-cell--2-col">:</h6>
                 <div class="mdl-cell--6-col ">
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="route_mode_nat">
-                        <input type="radio" id="route_mode_nat" class="mdl-radio__button" name="route" value="1"
+                        <input type="radio" id="route_mode_nat" class="mdl-radio__button" name="route" value="nat"
                                >
                         <span class="mdl-radio__label">NAT</span>
                     </label>
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col" for="route_mode_bridge">
-                        <input type="radio" id="route_mode_bridge" class="mdl-radio__button" name="route" value="2">
+                        <input type="radio" id="route_mode_bridge" class="mdl-radio__button" name="route" value="bridge">
                         <span class="mdl-radio__label">Bridge</span>
                     </label>
                 </div>
@@ -100,7 +100,7 @@
 
                 <div class="mdl-cell--2-col">
 
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                    <button id="interface_save_button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                     >Save
                     </button>
                 </div>
@@ -152,16 +152,6 @@
                                   class="mdl-grid" id="wpa_config_area"></textarea>
 
             </div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--5-col"></div>
-                <div class="mdl-cell--2-col">
-
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    >Update
-                    </button>
-                </div>
-                <div class="mdl-cell--3-col"></div>
-            </div>
 
         </div>
 
@@ -180,13 +170,13 @@
                     <div class="mdl-cell--7-col">
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
                                for="ip_mode_dhcp_default">
-                            <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default" value="7"
+                            <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default" value="dhcp"
                                    >
                             <span class="mdl-radio__label">DHCP</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
                                for="ip_mode_static_default">
-                            <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default" value="8">
+                            <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default" value="static">
                             <span class="mdl-radio__label">Static</span>
                         </label>
                     </div>
@@ -205,16 +195,6 @@
                         <input class="mdl-textfield__input" id="subnet_static_default"/>
                     </div>
                 </div>
-            </div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--5-col"></div>
-                <div class="mdl-cell--2-col">
-
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                        Update
-                    </button>
-                </div>
-                <div class="mdl-cell--5-col"></div>
             </div>
 
         </div>
@@ -238,22 +218,7 @@
 
             <div class="mdl-cell--12-col mdl-grid"></div>
             <div class="mdl-cell--12-col mdl-grid"></div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--4-col"></div>
-                <div class="mdl-cell--3-col">
 
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    >Edit
-                    </button>
-                </div>
-                <div class="mdl-cell--3-col">
-
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    >Save
-                    </button>
-                </div>
-                <div class="mdl-cell--2-col"></div>
-            </div>
 
         </div>
     </div>
@@ -271,22 +236,6 @@
                         height:200px;width:100%;overflow-y: scroll;"
                                   class="mdl-grid" spellcheck="false"></textarea>
 
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <div class="mdl-cell--4-col"></div>
-                    <div class="mdl-cell--3-col">
-
-                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                        >Edit
-                        </button>
-                    </div>
-                    <div class="mdl-cell--3-col">
-
-                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                        >Save
-                        </button>
-                    </div>
-                    <div class="mdl-cell--2-col"></div>
                 </div>
 
             </div>
@@ -306,13 +255,13 @@
                     <div class="mdl-cell--7-col">
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
                                for="ip_mode_dhcp_hotspot">
-                            <input type="radio" id="ip_mode_dhcp_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="9"
+                            <input type="radio" id="ip_mode_dhcp_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="dhcp"
                                    checked>
                             <span class="mdl-radio__label">DHCP</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
                                for="ip_mode_static_hotspot">
-                            <input type="radio" id="ip_mode_static_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="10">
+                            <input type="radio" id="ip_mode_static_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="static">
                             <span class="mdl-radio__label">Static</span>
                         </label>
                     </div>
@@ -330,16 +279,6 @@
                     <div class="mdl-cell--6-col ">
                         <input class="mdl-textfield__input" id="subnet_static_hotspot"/>
                     </div>
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <div class="mdl-cell--5-col"></div>
-                    <div class="mdl-cell--2-col">
-
-                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                            Save
-                        </button>
-                    </div>
-                    <div class="mdl-cell--5-col"></div>
                 </div>
 
             </div>
