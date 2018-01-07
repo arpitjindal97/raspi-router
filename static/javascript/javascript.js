@@ -33,7 +33,7 @@ function fill_status_page() {
 }
 
 
-var server_ip = "http://localhost:8080";
+var server_ip = "/api";
 $(document).ready(function () {
 
 
