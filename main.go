@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 )
 
+
+// Packages needed wireless_tools, iw, net-tools
+
 var File ConfigFile
 
 func main() {

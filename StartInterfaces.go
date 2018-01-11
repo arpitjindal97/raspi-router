@@ -2,11 +2,30 @@ package main
 
 import (
 	"os/exec"
-	"fmt"
+	"time"
 )
 
 func StartTheInterfaces(file ConfigFile) {
-	path := "/home/arpit/Desktop/workspace/GoglandProjects/raspbian-router-server/"
+	path := "/home/arpit/Desktop/workspace/angular/mdl/"
+
+	exec.Command("systemctl","stop","wpa_supplicant").Start()
+	exec.Command("systemctl","disable","wpa_supplicant").Start()
+
+	exec.Command("systemctl","stop","dhcpcd").Start()
+	exec.Command("systemctl","disable","dhcpcd").Start()
+
+	exec.Command("systemctl","stop","hostapd").Start()
+	exec.Command("systemctl","disable","hostapd").Start()
+
+	exec.Command("systemctl","stop","dnsmasq").Start()
+	exec.Command("systemctl","disable","dnsmasq").Start()
+
+	kill("wpa_supplicant")
+	kill("dhcpcd")
+	kill("hostapd")
+	kill("dnsmasq")
+
+	time.Sleep(time.Second*2)
 
 	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
@@ -24,9 +43,6 @@ func StartTheInterfaces(file ConfigFile) {
 
 				cmd := exec.Command("wpa_supplicant","-B","-i",inter.Name,"-c",path+"config/"+inter.Name+"_wpa.conf")
 				cmd.Start()
-
-				fmt.Println(cmd.Process.Pid)
-
 
 			}
 
@@ -52,5 +68,16 @@ func StartTheInterfaces(file ConfigFile) {
 
 
 	}
+
+}
+
+
+
+func kill(wpa string){
+
+	c1 := exec.Command("pkill",wpa)
+	c1.Start()
+	c1.Wait()
+
 
 }

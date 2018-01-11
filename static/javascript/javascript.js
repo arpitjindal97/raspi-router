@@ -237,7 +237,7 @@ function sendData() {
         "IsWifi":"","Info":null
     };
 
-    $.post("http://127.0.0.1:8080/update_interface", JSON.stringify(json_obj));
+    $.post(server_ip+"/update_interface", JSON.stringify(json_obj));
 }
 
 function LoadHtmlDiv(div_id, html_file) {

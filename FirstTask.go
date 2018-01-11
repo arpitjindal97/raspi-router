@@ -95,8 +95,9 @@ func CreateDefaultInterface(name string) Interfaces {
 	var name_default Interfaces
 	name_default.Name = name
 
-	str := GetOutput("iw dev "+name+" link")
-	if str == "Not connected." {
+	str := GetOutput("iwconfig "+name)
+
+	if str == ""{
 		name_default.IsWifi = "false"
 	} else {
 		name_default.IsWifi = "true"

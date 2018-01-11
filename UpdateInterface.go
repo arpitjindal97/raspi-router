@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"pifke.org/wpasupplicant"
 )
 
 func UpdateInterface(w http.ResponseWriter, r *http.Request) {
@@ -58,4 +59,23 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 
 	File = FirstTask()
+
+	RestartInterface(rec_interface.Name)
+}
+
+func RestartInterface(intername string) {
+
+	w, err := wpasupplicant.Unixgram(intername)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Reconfigure()
+
+	/*bss,_ := w.ScanResults()
+
+	for b :=0;b<len(bss);b++ {
+
+		fmt.Println(bss[b].SSID())
+	}*/
 }
