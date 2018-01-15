@@ -21,7 +21,7 @@ func main() {
 	http.HandleFunc("/api/update_interface",UpdateInterface)
 	http.HandleFunc("/api",Index)
 
-	//StartTheInterfaces(File)
+	StartTheInterfaces(File)
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)

@@ -3,22 +3,22 @@ package main
 import (
 	"os/exec"
 	"time"
+	"fmt"
 )
 
 func StartTheInterfaces(file ConfigFile) {
-	path := "/home/arpit/Desktop/workspace/angular/mdl/"
 
-	exec.Command("systemctl","stop","wpa_supplicant").Start()
-	exec.Command("systemctl","disable","wpa_supplicant").Start()
+	ExecuteWait("systemctl","stop","wpa_supplicant")
+	ExecuteWait("systemctl","disable","wpa_supplicant")
 
-	exec.Command("systemctl","stop","dhcpcd").Start()
-	exec.Command("systemctl","disable","dhcpcd").Start()
+	ExecuteWait("systemctl","stop","dhcpcd")
+	ExecuteWait("systemctl","disable","dhcpcd")
 
-	exec.Command("systemctl","stop","hostapd").Start()
-	exec.Command("systemctl","disable","hostapd").Start()
+	ExecuteWait("systemctl","stop","hostapd")
+	ExecuteWait("systemctl","disable","hostapd")
 
-	exec.Command("systemctl","stop","dnsmasq").Start()
-	exec.Command("systemctl","disable","dnsmasq").Start()
+	ExecuteWait("systemctl","stop","dnsmasq")
+	ExecuteWait("systemctl","disable","dnsmasq")
 
 	kill("wpa_supplicant")
 	kill("dhcpcd")
@@ -29,49 +29,55 @@ func StartTheInterfaces(file ConfigFile) {
 
 	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
-		inter := file.NetworkInterfaces[i]
+		ExecuteWait("ip","link","set",file.NetworkInterfaces[i].Name,"up")
 
-		if inter.Name == "lo" {
-			continue
-		}
-
-		exec.Command("ip","link","set",inter.Name,"up").Start()
-
-		if inter.Mode == "default" {
-
-			if inter.IsWifi == "true" {
-
-				cmd := exec.Command("wpa_supplicant","-B","-i",inter.Name,"-c",path+"config/"+inter.Name+"_wpa.conf")
-				cmd.Start()
-
-			}
-
-		} else {
-			if inter.IsWifi == "true" {
-
-				exec.Command("sh", "-c", "hostapd config/"+inter.Name+"_hostapd.conf").Start()
-			}
-
-			exec.Command("sh", "-c", "dnsmasq").Start()
-
-		}
-
-
-
-		if inter.IpModes == "dhcp" {
-
-			exec.Command( "dhcpcd","-t","0",inter.Name).Start()
-		} else {
-
-			exec.Command("sh", "-c", "assign static ip addr").Start()
-		}
-
-
+		StartParticularInterface(file.NetworkInterfaces[i])
 	}
 
 }
 
+func StartParticularInterface(inter Interfaces) {
 
+
+	path := "/home/arpit/Desktop/workspace/angular/mdl/"
+
+	if inter.Name == "lo" {
+		return
+	}
+
+	ExecuteWait("ip","addr","flush","dev",inter.Name)
+	ExecuteWait("ip","route","flush","dev",inter.Name)
+
+	if inter.Mode == "default" {
+
+		if inter.IsWifi == "true" {
+
+			ExecuteWait("wpa_supplicant","-B","-i",inter.Name,"-c",path+"config/"+inter.Name+"_wpa.conf")
+
+		}
+
+	} else {
+		if inter.IsWifi == "true" {
+
+			//exec.Command("sh", "-c", "hostapd config/"+inter.Name+"_hostapd.conf").Start()
+			fmt.Println("starting hostapd on "+inter.Name)
+		}
+
+		//exec.Command("sh", "-c", "dnsmasq").Start()
+
+	}
+
+
+	if inter.IpModes == "dhcp" {
+
+		exec.Command( "dhcpcd","-t","0",inter.Name).Start()
+
+	} else {
+
+		exec.Command("sh", "-c", "assign static ip addr").Start()
+	}
+
+}
 
 func kill(wpa string){
 
@@ -79,5 +85,11 @@ func kill(wpa string){
 	c1.Start()
 	c1.Wait()
 
+}
 
+func ExecuteWait(name string, arg ...string){
+
+	cmd := exec.Command(name,arg...)
+	cmd.Start()
+	cmd.Wait()
 }
