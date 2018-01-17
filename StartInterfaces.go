@@ -1,29 +1,28 @@
 package main
 
 import (
-	"os/exec"
 	"time"
 	"fmt"
 )
 
 func StartTheInterfaces(file ConfigFile) {
 
-	ExecuteWait("systemctl","stop","wpa_supplicant")
-	ExecuteWait("systemctl","disable","wpa_supplicant")
+	Systemctl("stop","wpa_supplicant")
+	Systemctl("disable","wpa_supplicant")
 
-	ExecuteWait("systemctl","stop","dhcpcd")
-	ExecuteWait("systemctl","disable","dhcpcd")
+	Systemctl("stop","dhcpcd")
+	Systemctl("disable","dhcpcd")
 
-	ExecuteWait("systemctl","stop","hostapd")
-	ExecuteWait("systemctl","disable","hostapd")
+	Systemctl("stop","hostapd")
+	Systemctl("disable","hostapd")
 
-	ExecuteWait("systemctl","stop","dnsmasq")
-	ExecuteWait("systemctl","disable","dnsmasq")
+	Systemctl("stop","dnsmasq")
+	Systemctl("disable","dnsmasq")
 
-	kill("wpa_supplicant")
-	kill("dhcpcd")
-	kill("hostapd")
-	kill("dnsmasq")
+	PKill("wpa_supplicant")
+	PKill("dhcpcd")
+	PKill("hostapd")
+	PKill("dnsmasq")
 
 	time.Sleep(time.Second*2)
 
@@ -41,7 +40,7 @@ func StartParticularInterface(inter Interfaces) {
 
 	path := "/home/arpit/Desktop/workspace/angular/mdl/"
 
-	if inter.Name == "lo" {
+	if inter.Name == "lo" || inter.Name == "enp7s0"{
 		return
 	}
 
@@ -70,26 +69,14 @@ func StartParticularInterface(inter Interfaces) {
 
 	if inter.IpModes == "dhcp" {
 
-		exec.Command( "dhcpcd","-t","0",inter.Name).Start()
+		//exec.Command( "dhcpcd","-t","0",inter.Name).Start()
+
+		Systemctl("start","dhcpcd@"+inter.Name)
 
 	} else {
 
-		exec.Command("sh", "-c", "assign static ip addr").Start()
+		//exec.Command("sh", "-c", "assign static ip addr").Start()
 	}
 
 }
 
-func kill(wpa string){
-
-	c1 := exec.Command("pkill",wpa)
-	c1.Start()
-	c1.Wait()
-
-}
-
-func ExecuteWait(name string, arg ...string){
-
-	cmd := exec.Command(name,arg...)
-	cmd.Start()
-	cmd.Wait()
-}

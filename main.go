@@ -34,7 +34,6 @@ func main() {
 func Index(w http.ResponseWriter, r *http.Request) {
 	b,_ := json.MarshalIndent(File,"","	")
 
-
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -49,4 +48,39 @@ func GetOutput(command string) string {
 		return ""
 	}
 	return string(str[:(len(str)-1)])
+}
+
+func Kill(pattern string){
+
+
+	bb := exec.Command("sh","-c","ps aux | grep -E '"+pattern+"' | grep -v grep | awk '{print $2}'")
+
+	b,_ := bb.Output()
+
+	pid := string(b)
+	pid = pid[:len(pid)-1]
+
+	bb = exec.Command("kill",pid)
+	bb.Start()
+	bb.Wait()
+}
+func PKill(wpa string){
+
+	c1 := exec.Command("pkill",wpa)
+	c1.Start()
+	c1.Wait()
+
+}
+
+func ExecuteWait(name string, arg ...string){
+
+	cmd := exec.Command(name,arg...)
+	cmd.Start()
+	cmd.Wait()
+}
+
+func Systemctl(action string,service_name string) {
+	cmd := exec.Command("systemctl",action,service_name)
+	cmd.Start()
+	cmd.Wait()
 }
