@@ -119,8 +119,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile{
 		// Dnsmasq
 		raw,err := ioutil.ReadFile("config/"+name+"_dnsmasq.conf")
 		if err !=nil {
-			str:="interface="+name+"\n"+
-			"bind-interfaces\n"+
+			str:="bind-interfaces\n"+
 			"server=8.8.8.8\n"+
 			"domain-needed\n"+
 			"bogus-priv\n"+

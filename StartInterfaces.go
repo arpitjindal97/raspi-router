@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 	"fmt"
+	"os/exec"
 )
 
 func StartTheInterfaces(file ConfigFile) {
@@ -58,11 +59,14 @@ func StartParticularInterface(inter Interfaces) {
 	} else {
 		if inter.IsWifi == "true" {
 
-			//exec.Command("sh", "-c", "hostapd config/"+inter.Name+"_hostapd.conf").Start()
-			fmt.Println("starting hostapd on "+inter.Name)
+
+			exec.Command("hostapd",path+"config/"+inter.Name+"_hostapd.conf").Start()
+
 		}
 
-		//exec.Command("sh", "-c", "dnsmasq").Start()
+		exec.Command("dnsmasq", "-k","--user=root","-i",inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf").Start()
+		//time.Sleep(time.Second*2)
+		fmt.Println("starting hostapd on "+inter.Name)
 
 	}
 
@@ -75,7 +79,8 @@ func StartParticularInterface(inter Interfaces) {
 
 	} else {
 
-		//exec.Command("sh", "-c", "assign static ip addr").Start()
+
+		ExecuteWait("ifconfig",inter.Name,inter.IpAddress,"netmask",inter.SubnetMask)
 	}
 
 }
