@@ -102,17 +102,21 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		if rec_interface.IpModes != File.NetworkInterfaces[i].IpModes {
+
+
+			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
+			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+			Systemctl("stop", "dhcpcd@"+rec_interface.Name)
+
+
 			if rec_interface.IpModes == "static" {
 
-				Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 
-				ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-				ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
 				//assign static ip address
+				ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
 
 			} else if rec_interface.IpModes == "dhcp" {
 
-				Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 				time.Sleep(time.Second * 2)
 				Systemctl("start", "dhcpcd@"+rec_interface.Name)
 
