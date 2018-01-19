@@ -82,5 +82,5 @@ func ExecuteWait(name string, arg ...string){
 func Systemctl(action string,service_name string) {
 	cmd := exec.Command("systemctl",action,service_name)
 	cmd.Start()
-	cmd.Wait()
+	//cmd.Wait()
 }

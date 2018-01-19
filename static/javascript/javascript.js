@@ -92,7 +92,12 @@ function interface_item_clicked(element) {
 
         document.getElementById("route_mode_" + data[i]["RouteMode"]).setAttribute("checked", "")
 
-        document.getElementById("route_int_" + data[i]["RouteInterface"]).setAttribute("selected", "")
+        var element1 = document.getElementById("route_int_" + data[i]["RouteInterface"])
+
+        if (element1 == null )
+            document.getElementById("route_int_").setAttribute("selected", "")
+        else
+            element1.setAttribute("selected","")
 
         document.getElementById("conn_to").innerHTML = data[i]["Info"]["ConntectedTo"];
         document.getElementById("ap_mac_addr").innerHTML = data[i]["Info"]["ApMacAddr"];
