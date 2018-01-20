@@ -9,21 +9,24 @@ import (
 func StartTheInterfaces(file ConfigFile) {
 
 	Systemctl("stop","wpa_supplicant")
-	Systemctl("disable","wpa_supplicant")
+	//Systemctl("disable","wpa_supplicant")
 
 	Systemctl("stop","dhcpcd")
-	Systemctl("disable","dhcpcd")
+	//Systemctl("disable","dhcpcd")
 
 	Systemctl("stop","hostapd")
-	Systemctl("disable","hostapd")
+	//Systemctl("disable","hostapd")
 
 	Systemctl("stop","dnsmasq")
-	Systemctl("disable","dnsmasq")
+	//Systemctl("disable","dnsmasq")
 
 	PKill("wpa_supplicant")
 	PKill("dhcpcd")
 	PKill("hostapd")
 	PKill("dnsmasq")
+
+	EnableNAT()
+	IptablesClearAll()
 
 	time.Sleep(time.Second*2)
 
@@ -62,11 +65,14 @@ func StartParticularInterface(inter Interfaces) {
 
 			exec.Command("hostapd",path+"config/"+inter.Name+"_hostapd.conf").Start()
 
+
 		}
 
-		exec.Command("dnsmasq", "-k","--user=root","-i",inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf").Start()
-		//time.Sleep(time.Second*2)
+		time.Sleep(time.Second*1)
+		ExecuteWait("dnsmasq", "--user=root","-i",inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf")
 		fmt.Println("starting hostapd on "+inter.Name)
+
+		IptablesCreate(inter)
 
 	}
 

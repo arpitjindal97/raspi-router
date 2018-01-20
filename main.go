@@ -23,6 +23,7 @@ func main() {
 
 	StartTheInterfaces(File)
 
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
 
@@ -58,6 +59,9 @@ func Kill(pattern string){
 	b,_ := bb.Output()
 
 	pid := string(b)
+	if pid == ""{
+		return
+	}
 	pid = pid[:len(pid)-1]
 
 	bb = exec.Command("kill",pid)

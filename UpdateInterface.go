@@ -71,6 +71,9 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 			Kill("hostapd.*" + rec_interface.Name)
 			Kill("dnsmasq.*" + rec_interface.Name)
 
+			//clear old rules
+			IptablesClear(File.NetworkInterfaces[i])
+
 		} else {
 			Kill("wpa_supplicant.*" + rec_interface.Name)
 
@@ -103,14 +106,11 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 		if rec_interface.IpModes != File.NetworkInterfaces[i].IpModes {
 
-
 			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
 			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
 			Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 
-
 			if rec_interface.IpModes == "static" {
-
 
 				//assign static ip address
 				ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
@@ -129,6 +129,12 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 			ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
 
+		} else if rec_interface.Mode == "hotspot" && (
+				rec_interface.RouteMode != File.NetworkInterfaces[i].RouteMode ||
+				rec_interface.RouteInterface != File.NetworkInterfaces[i].RouteInterface ) {
+
+			IptablesClear(File.NetworkInterfaces[i])
+			IptablesCreate(rec_interface)
 		}
 	}
 
