@@ -60,6 +60,9 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	raw = []byte(rec_interface.Dnsmasq)
 	ioutil.WriteFile("config/"+rec_interface.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
+
+
+
 	//if there is any change in wpa, hostapd,dnsmasq then restart
 
 	if rec_interface.Mode != File.NetworkInterfaces[i].Mode {
@@ -121,6 +124,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 				Systemctl("start", "dhcpcd@"+rec_interface.Name)
 
 			}
+
 		} else if rec_interface.IpModes == "static" {
 
 			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
@@ -129,7 +133,10 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 			ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
 
-		} else if rec_interface.Mode == "hotspot" && (
+		}
+
+
+		if rec_interface.Mode == "hotspot" && (
 				rec_interface.RouteMode != File.NetworkInterfaces[i].RouteMode ||
 				rec_interface.RouteInterface != File.NetworkInterfaces[i].RouteInterface ) {
 
