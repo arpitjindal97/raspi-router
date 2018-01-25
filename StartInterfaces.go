@@ -55,7 +55,8 @@ func StartParticularInterface(inter Interfaces) {
 
 		if inter.IsWifi == "true" {
 
-			ExecuteWait("wpa_supplicant","-B","-i",inter.Name,"-c",path+"config/"+inter.Name+"_wpa.conf")
+			//ExecuteWait("wpa_supplicant","-B","-i",inter.Name,"-c",path+"config/"+inter.Name+"_wpa.conf")
+			DBusCreateInterface(inter.Name,"nl80211",path+"config/"+inter.Name+"_wpa.conf",inter)
 
 		}
 
@@ -81,12 +82,12 @@ func StartParticularInterface(inter Interfaces) {
 
 		//exec.Command( "dhcpcd","-t","0",inter.Name).Start()
 
-		Systemctl("start","dhcpcd@"+inter.Name)
+		//Systemctl("start","dhcpcd@"+inter.Name)
 
 	} else {
 
 
-		ExecuteWait("ifconfig",inter.Name,inter.IpAddress,"netmask",inter.SubnetMask)
+		//ExecuteWait("ifconfig",inter.Name,inter.IpAddress,"netmask",inter.SubnetMask)
 	}
 
 }

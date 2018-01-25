@@ -78,7 +78,8 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 			IptablesClear(File.NetworkInterfaces[i])
 
 		} else {
-			Kill("wpa_supplicant.*" + rec_interface.Name)
+			DBusRemoveInterface(rec_interface.Name)
+
 
 		}
 
@@ -87,7 +88,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 	} else if rec_interface.Wpa != File.NetworkInterfaces[i].Wpa && rec_interface.Mode == "default" {
 
-		Kill("wpa_supplicant.*" + rec_interface.Name)
+		DBusRemoveInterface(rec_interface.Name)
 
 		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 		time.Sleep(time.Second * 2)

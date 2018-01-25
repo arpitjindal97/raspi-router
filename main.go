@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"os/exec"
 	"encoding/json"
+	"github.com/godbus/dbus"
 )
 
 
 // Packages needed wireless_tools, iw, net-tools
 
 var File ConfigFile
+var dbus_objects map[string] chan *dbus.Signal
 
 func main() {
 
@@ -20,6 +22,8 @@ func main() {
 	http.HandleFunc("/api/device_info",DeviceInfo)
 	http.HandleFunc("/api/update_interface",UpdateInterface)
 	http.HandleFunc("/api",Index)
+
+	dbus_objects = make(map[string] chan *dbus.Signal)
 
 	StartTheInterfaces(File)
 
