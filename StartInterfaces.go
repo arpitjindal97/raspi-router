@@ -4,6 +4,7 @@ import (
 	"time"
 	"fmt"
 	"os/exec"
+	"github.com/godbus/dbus"
 )
 
 func StartTheInterfaces(file ConfigFile) {
@@ -48,6 +49,8 @@ func StartParticularInterface(inter Interfaces) {
 		return
 	}
 
+	dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
+
 	ExecuteWait("ip","addr","flush","dev",inter.Name)
 	ExecuteWait("ip","route","flush","dev",inter.Name)
 
@@ -69,8 +72,8 @@ func StartParticularInterface(inter Interfaces) {
 
 		}
 
-		time.Sleep(time.Second*1)
-		ExecuteWait("dnsmasq", "--user=root","-i",inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf")
+		time.Sleep(time.Second*2)
+		ExecuteWait("dnsmasq", "--user=root","--interface="+inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf")
 		fmt.Println("starting hostapd on "+inter.Name)
 
 		IptablesCreate(inter)

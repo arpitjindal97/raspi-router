@@ -13,8 +13,9 @@ import (
 var File ConfigFile
 var dbus_objects map[string] chan *dbus.Signal
 
-func main() {
 
+
+func main() {
 
 	File = FirstTask()
 

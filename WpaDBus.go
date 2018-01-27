@@ -7,17 +7,18 @@ import (
 )
 
 func DBusCreateInterface(ifname string, driver string, config string, inter Interfaces) {
-	conn, err := dbus.SystemBus()
+
+	conn,err := dbus.SystemBusPrivate()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+	err = conn.Auth(nil)
+	err = conn.Hello()
+	//fmt.Println("reached here")
 
 	obj := conn.Object("fi.w1.wpa_supplicant1", //Well known name on the bus (`busctl list` will show these)
 		dbus.ObjectPath("/fi/w1/wpa_supplicant1")) //Object path (`busctl tree <well known name>` shows these)
 
-	//Method name is the interface + the method name
-	//a{sv} is the same as map[string]interface{}
-	//o is the same as dbus.ObjectPath
 
 	var intfPath dbus.ObjectPath
 
@@ -27,7 +28,6 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Inte
 		"ConfigFile": config,
 	}).Store(&intfPath)
 
-	//err = obj.Call("fi.w1.wpa_supplicant1.GetInterface", 0, "wlp0s29u1u2").Store(&intfPath)
 
 	if err != nil {
 		log.Fatal(err)
@@ -35,10 +35,11 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Inte
 
 	log.Println(intfPath)
 
-	//{"Ifname": __import__('gi.repository.GLib', globals(), locals(), ['Variant']).Variant("s","wlp0s29u1u2")}
 
 	//wait for state completed
 	DbusDhcpcdRoutine(inter)
+	fmt.Println("go rountine end reach1")
+	conn.Close()
 }
 
 func DBusRemoveInterface(ifname string) {
@@ -46,21 +47,18 @@ func DBusRemoveInterface(ifname string) {
 	fmt.Println("removing interface " + ifname)
 	DbusStopDhcp(ifname)
 
-	conn, err := dbus.SystemBus()
-	if err != nil {
+	conn,_ := dbus.SystemBusPrivate()
+	conn.Auth(nil)
+	conn.Hello()
+	defer conn.Close()
 
-		panic(err)
-	}
-	obj := conn.Object("fi.w1.wpa_supplicant1", //Well known name on the bus (`busctl list` will show these)
-		dbus.ObjectPath("/fi/w1/wpa_supplicant1")) //Object path (`busctl tree <well known name>` shows these)
+	obj := conn.Object("fi.w1.wpa_supplicant1",
+		dbus.ObjectPath("/fi/w1/wpa_supplicant1"))
 
-	//Method name is the interface + the method name
-	//a{sv} is the same as map[string]interface{}
-	//o is the same as dbus.ObjectPath
 
 	var intfPath dbus.ObjectPath
 
-	err = obj.Call("fi.w1.wpa_supplicant1.GetInterface", 0, ifname).Store(&intfPath)
+	err := obj.Call("fi.w1.wpa_supplicant1.GetInterface", 0, ifname).Store(&intfPath)
 	if err != nil {
 		panic(err)
 	}
@@ -75,14 +73,12 @@ func DBusRemoveInterface(ifname string) {
 
 func DbusDhcpcdRoutine(inter Interfaces) {
 
+	conn,_ := dbus.SystemBusPrivate()
+	conn.Auth(nil)
+	conn.Hello()
 
-	conn, err := dbus.SystemBus()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	obj := conn.Object("fi.w1.wpa_supplicant1", //Well known name on the bus (`busctl list` will show these)
-		dbus.ObjectPath("/fi/w1/wpa_supplicant1")) //Object path (`busctl tree <well known name>` shows these)
+	obj := conn.Object("fi.w1.wpa_supplicant1",
+		dbus.ObjectPath("/fi/w1/wpa_supplicant1"))
 
 	var intfPath dbus.ObjectPath
 
@@ -91,15 +87,16 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 	conn.BusObject().Call("org.freedesktop.DBus.AddMatch", 0,
 		"type='signal',path='"+string(intfPath)+"',interface='fi.w1.wpa_supplicant1.Interface',member='PropertiesChanged'")
 
-	dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
+	//dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
 
 	conn.Signal(dbus_objects[inter.Name])
+
 
 	go func() {
 
 		fmt.Println("routine called")
 
-		for v := range dbus_objects[inter.Name] {
+		outer :for v := range dbus_objects[inter.Name] {
 
 			var mm map[string]interface{}
 
@@ -109,9 +106,11 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 				if key == "Stop" {
 					fmt.Println("stop signal received")
-					return
+					break outer
 				}
+				//fmt.Print(key + "\t")
 
+				//fmt.Println(mm[key])
 				if key != "State" {
 					continue
 				}
@@ -127,13 +126,16 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 					}
 
 					fmt.Println("dhcpcd routine done")
-					return
+					break outer
 				}
 
 			}
 
 		}
+		conn.Close()
 	}()
+	fmt.Println("go rountine end reach")
+	//conn.RemoveSignal(dbus_objects[inter.Name])
 }
 
 func DbusStopDhcp(ifname string) {
