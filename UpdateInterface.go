@@ -122,7 +122,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 			} else if rec_interface.IpModes == "dhcp" {
 
 				time.Sleep(time.Second * 2)
-				Systemctl("start", "dhcpcd@"+rec_interface.Name)
+				DHCPInterface(rec_interface)
 
 			}
 
@@ -147,5 +147,12 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	}
 
 	File = FirstTask()
+
+}
+
+func DHCPInterface(inter Interfaces){
+	if inter.IsWifi == "true" {
+		DbusDhcpcdRoutine(inter)
+	}
 
 }

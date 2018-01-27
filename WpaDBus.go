@@ -94,6 +94,16 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 	go func() {
 
+		if DbusFetchProperty(inter) == "completed" {
+
+			if inter.IpModes == "dhcp" {
+				Systemctl("start", "dhcpcd@"+inter.Name)
+			} else {
+				ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+			}
+			return
+		}
+
 		fmt.Println("routine called")
 
 		outer :for v := range dbus_objects[inter.Name] {
@@ -132,7 +142,6 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 			}
 
 		}
-		conn.Close()
 	}()
 	fmt.Println("go rountine end reach")
 	//conn.RemoveSignal(dbus_objects[inter.Name])
@@ -162,4 +171,33 @@ func DbusStopDhcp(ifname string) {
 	}
 
 	Systemctl("stop", "dhcpcd@"+ifname)
+}
+
+func DbusFetchProperty(inter Interfaces) string {
+
+	conn, err := dbus.SystemBusPrivate()
+	conn.Auth(nil)
+	conn.Hello()
+	defer conn.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	obj := conn.Object("fi.w1.wpa_supplicant1",
+		dbus.ObjectPath("/fi/w1/wpa_supplicant1"))
+
+	var intfPath dbus.ObjectPath
+
+	obj.Call("fi.w1.wpa_supplicant1.GetInterface", 0, inter.Name).Store(&intfPath)
+
+
+	obj = conn.Object("fi.w1.wpa_supplicant1", dbus.ObjectPath(string(intfPath)))
+
+
+	variant,_ := obj.GetProperty("fi.w1.wpa_supplicant1.Interface.State")
+
+	some := variant.String()[1:len(variant.String())-1]
+	//fmt.Println(some)
+	return some
+
 }
