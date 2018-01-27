@@ -71,8 +71,9 @@ func StartParticularInterface(inter Interfaces) {
 
 
 		}
-
-		time.Sleep(time.Second*2)
+		ExecuteWait("ifconfig",inter.Name,inter.IpAddress,"netmask",inter.SubnetMask)
+		
+		//time.Sleep(time.Second*2)
 		ExecuteWait("dnsmasq", "--user=root","--interface="+inter.Name,"-C",path+"config/"+inter.Name+"_dnsmasq.conf")
 		fmt.Println("starting hostapd on "+inter.Name)
 
@@ -81,17 +82,6 @@ func StartParticularInterface(inter Interfaces) {
 	}
 
 
-	if inter.IpModes == "dhcp" {
-
-		//exec.Command( "dhcpcd","-t","0",inter.Name).Start()
-
-		//Systemctl("start","dhcpcd@"+inter.Name)
-
-	} else {
-
-
-		//ExecuteWait("ifconfig",inter.Name,inter.IpAddress,"netmask",inter.SubnetMask)
-	}
 
 }
 

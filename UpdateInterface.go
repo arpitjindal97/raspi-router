@@ -90,7 +90,6 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 		DBusRemoveInterface(rec_interface.Name)
 
-		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 		time.Sleep(time.Second * 2)
 
 		StartParticularInterface(rec_interface)
@@ -101,7 +100,6 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 		Kill("hostapd.*" + rec_interface.Name)
 		Kill("dnsmasq.*" + rec_interface.Name)
 
-		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 		time.Sleep(time.Second * 2)
 
 		StartParticularInterface(rec_interface)
