@@ -30,21 +30,20 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Inte
 
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(config)
+		panic(err)
 	}
 
 	log.Println(intfPath)
 
-
-	//wait for state completed
-	DbusDhcpcdRoutine(inter)
-	fmt.Println("go rountine end reach1")
 	conn.Close()
 }
 
 func DBusRemoveInterface(ifname string) {
 
 	fmt.Println("removing interface " + ifname)
+
+	//stop running dhcpcd
 	DbusStopDhcp(ifname)
 
 	conn,_ := dbus.SystemBusPrivate()
@@ -54,7 +53,6 @@ func DBusRemoveInterface(ifname string) {
 
 	obj := conn.Object("fi.w1.wpa_supplicant1",
 		dbus.ObjectPath("/fi/w1/wpa_supplicant1"))
-
 
 	var intfPath dbus.ObjectPath
 
@@ -96,11 +94,8 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 		if DbusFetchProperty(inter) == "completed" {
 
-			if inter.IpModes == "dhcp" {
 				Systemctl("start", "dhcpcd@"+inter.Name)
-			} else {
-				ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-			}
+
 			return
 		}
 
@@ -129,13 +124,9 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 				if mm[key].(string) == "completed" {
 
-					if inter.IpModes == "dhcp" {
 						Systemctl("start", "dhcpcd@"+inter.Name)
-					} else {
-						ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-					}
 
-					fmt.Println("dhcpcd routine done")
+
 					break outer
 				}
 
@@ -143,7 +134,6 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 		}
 	}()
-	fmt.Println("go rountine end reach")
 	//conn.RemoveSignal(dbus_objects[inter.Name])
 }
 

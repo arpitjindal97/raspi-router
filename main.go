@@ -13,7 +13,7 @@ import (
 var File ConfigFile
 var dbus_objects map[string] chan *dbus.Signal
 
-
+var eth_thread map[string] string
 
 func main() {
 
@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)
+	eth_thread = make(map[string] string)
 
 	StartTheInterfaces(File)
 

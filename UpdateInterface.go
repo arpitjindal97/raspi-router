@@ -61,7 +61,58 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	ioutil.WriteFile("config/"+rec_interface.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
 
+	if rec_interface.IsWifi == "true" {
+		WifiUpdate(rec_interface,i)
+	} else {
+		EthUpdate(rec_interface,i)
+	}
 
+
+	if rec_interface.IpModes != File.NetworkInterfaces[i].IpModes && rec_interface.Mode == "default" {
+
+		ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
+		ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+
+		if rec_interface.IpModes == "static" {
+
+			if rec_interface.IsWifi == "true" {
+				DbusStopDhcp(rec_interface.Name)
+			} else {
+				eth_thread[rec_interface.Name] = "stop"
+				Systemctl("stop", "dhcpcd@"+rec_interface.Name)
+				time.Sleep(3*time.Second)
+			}
+
+			//assign static ip address
+			ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
+
+		} else if rec_interface.IpModes == "dhcp" {
+
+			if rec_interface.IsWifi == "true" {
+				DbusDhcpcdRoutine(rec_interface)
+			}else {
+				EthDhcp(rec_interface)
+			}
+		}
+
+	} else if rec_interface.Mode == "hotspot" &&
+		( rec_interface.IpAddress != File.NetworkInterfaces[i].IpAddress ||
+			rec_interface.SubnetMask != File.NetworkInterfaces[i].SubnetMask){
+
+		ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
+		ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+		//assign static ip address
+
+		ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
+
+	}
+
+
+	File = FirstTask()
+
+}
+
+func WifiUpdate(rec_interface Interfaces, i int){
 
 	//if there is any change in wpa, hostapd,dnsmasq then restart
 
@@ -79,8 +130,6 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			DBusRemoveInterface(rec_interface.Name)
-
-
 		}
 
 		time.Sleep(time.Second * 2)
@@ -104,53 +153,51 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 		StartParticularInterface(rec_interface)
 
-	} else {
+	} else if rec_interface.Mode == "hotspot" && (
+		rec_interface.RouteMode != File.NetworkInterfaces[i].RouteMode ||
+			rec_interface.RouteInterface != File.NetworkInterfaces[i].RouteInterface ) {
 
-		if rec_interface.IpModes != File.NetworkInterfaces[i].IpModes {
-
-			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
-			Systemctl("stop", "dhcpcd@"+rec_interface.Name)
-
-			if rec_interface.IpModes == "static" {
-
-				//assign static ip address
-				ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
-
-			} else if rec_interface.IpModes == "dhcp" {
-
-				time.Sleep(time.Second * 2)
-				DHCPInterface(rec_interface)
-
-			}
-
-		} else if rec_interface.IpModes == "static" {
-
-			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
-			//assign static ip address
-
-			ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
-
-		}
-
-
-		if rec_interface.Mode == "hotspot" && (
-				rec_interface.RouteMode != File.NetworkInterfaces[i].RouteMode ||
-				rec_interface.RouteInterface != File.NetworkInterfaces[i].RouteInterface ) {
-
-			IptablesClear(File.NetworkInterfaces[i])
-			IptablesCreate(rec_interface)
-		}
+		IptablesClear(File.NetworkInterfaces[i])
+		IptablesCreate(rec_interface)
 	}
-
-	File = FirstTask()
-
 }
 
-func DHCPInterface(inter Interfaces){
-	if inter.IsWifi == "true" {
-		DbusDhcpcdRoutine(inter)
-	}
+func EthUpdate(rec_interface Interfaces, i int){
 
+	//if there is any change in dnsmasq then restart
+
+	if rec_interface.Mode != File.NetworkInterfaces[i].Mode {
+
+		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
+
+		if rec_interface.Mode == "default" {
+
+			Kill("dnsmasq.*" + rec_interface.Name)
+
+			//clear old rules
+			IptablesClear(File.NetworkInterfaces[i])
+
+		} else {
+			//no need to do anything
+			// only dhcpcd was running
+		}
+
+		time.Sleep(time.Second * 2)
+		StartParticularInterface(rec_interface)
+
+	} else if rec_interface.Dnsmasq != File.NetworkInterfaces[i].Dnsmasq && rec_interface.Mode == "hotspot" {
+
+		Kill("dnsmasq.*" + rec_interface.Name)
+
+		time.Sleep(time.Second * 2)
+
+		StartParticularInterface(rec_interface)
+
+	} else if rec_interface.Mode == "hotspot" && (
+		rec_interface.RouteMode != File.NetworkInterfaces[i].RouteMode ||
+			rec_interface.RouteInterface != File.NetworkInterfaces[i].RouteInterface ) {
+
+		IptablesClear(File.NetworkInterfaces[i])
+		IptablesCreate(rec_interface)
+	}
 }
