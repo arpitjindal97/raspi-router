@@ -94,7 +94,7 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 		if DbusFetchProperty(inter) == "completed" {
 
-				Systemctl("start", "dhcpcd@"+inter.Name)
+			go ExecuteWait("dhcpcd","-q","-w",inter.Name)
 
 			return
 		}
@@ -124,7 +124,7 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 
 				if mm[key].(string) == "completed" {
 
-						Systemctl("start", "dhcpcd@"+inter.Name)
+					go ExecuteWait("dhcpcd","-q","-w",inter.Name)
 
 
 					break outer
@@ -160,7 +160,7 @@ func DbusStopDhcp(ifname string) {
 
 	}
 
-	Systemctl("stop", "dhcpcd@"+ifname)
+	Kill("dhcpcd.*"+ifname)
 }
 
 func DbusFetchProperty(inter Interfaces) string {

@@ -79,7 +79,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 				DbusStopDhcp(rec_interface.Name)
 			} else {
 				eth_thread[rec_interface.Name] = "stop"
-				Systemctl("stop", "dhcpcd@"+rec_interface.Name)
+				Kill("dhcpcd.*"+rec_interface.Name)
 				time.Sleep(3*time.Second)
 			}
 
@@ -117,8 +117,6 @@ func WifiUpdate(rec_interface Interfaces, i int){
 	//if there is any change in wpa, hostapd,dnsmasq then restart
 
 	if rec_interface.Mode != File.NetworkInterfaces[i].Mode {
-
-		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
 
 		if rec_interface.Mode == "default" {
 
@@ -168,7 +166,7 @@ func EthUpdate(rec_interface Interfaces, i int){
 
 	if rec_interface.Mode != File.NetworkInterfaces[i].Mode {
 
-		Systemctl("stop", "dhcpcd@"+rec_interface.Name)
+		Kill("dhcpcd.*"+rec_interface.Name)
 
 		if rec_interface.Mode == "default" {
 

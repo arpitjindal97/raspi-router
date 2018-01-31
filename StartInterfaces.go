@@ -7,9 +7,10 @@ import (
 	"github.com/godbus/dbus"
 )
 
-var path = "/home/arpit/Desktop/workspace/angular/mdl/"
+var path = "/home/pi/Desktop/"
 
 func StartTheInterfaces(file ConfigFile) {
+	path="/home/pi/Desktop/"
 
 	Systemctl("stop", "wpa_supplicant")
 	//Systemctl("disable","wpa_supplicant")
@@ -121,7 +122,7 @@ func EthDhcp(inter Interfaces){
 
 		carrier := GetOutput("cat /sys/class/net/" + inter.Name + "/carrier")
 		if carrier == "1" {
-			Systemctl("start", "dhcpcd@"+inter.Name)
+			go ExecuteWait("dhcpcd","-q","-w",inter.Name)
 			return
 		}
 		time.Sleep(time.Second * 5)
