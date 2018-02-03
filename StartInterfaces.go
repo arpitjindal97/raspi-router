@@ -7,10 +7,10 @@ import (
 	"github.com/godbus/dbus"
 )
 
-var path = "/home/pi/Desktop/"
+var path = "/home/arpit/Desktop/workspace/angular/mdl/"
 
 func StartTheInterfaces(file ConfigFile) {
-	path="/home/pi/Desktop/"
+	//path="/home/pi/Desktop/"
 
 	Systemctl("stop", "wpa_supplicant")
 	//Systemctl("disable","wpa_supplicant")
@@ -36,6 +36,7 @@ func StartTheInterfaces(file ConfigFile) {
 
 	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
+
 		ExecuteWait("ip", "link", "set", file.NetworkInterfaces[i].Name, "up")
 
 		StartParticularInterface(file.NetworkInterfaces[i])
@@ -49,6 +50,13 @@ func StartParticularInterface(inter Interfaces) {
 		return
 	}
 
+
+	ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
+	ExecuteWait("ip", "route", "flush", "dev", inter.Name)
+
+	if inter.Mode == "off" {
+		return
+	}
 	if inter.IsWifi == "false" {
 		EthStart(inter)
 		return
@@ -57,8 +65,6 @@ func StartParticularInterface(inter Interfaces) {
 	//Wifi Interface
 	dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
 
-	ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
-	ExecuteWait("ip", "route", "flush", "dev", inter.Name)
 
 	if inter.Mode == "default" {
 
@@ -87,9 +93,6 @@ func StartParticularInterface(inter Interfaces) {
 }
 
 func EthStart(inter Interfaces) {
-
-	ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
-	ExecuteWait("ip", "route", "flush", "dev", inter.Name)
 
 	eth_thread[inter.Name] = "start"
 
@@ -122,9 +125,43 @@ func EthDhcp(inter Interfaces){
 
 		carrier := GetOutput("cat /sys/class/net/" + inter.Name + "/carrier")
 		if carrier == "1" {
-			go ExecuteWait("dhcpcd","-q","-w",inter.Name)
+			go ExecuteWait("dhcpcd","-q","-w","-t","0",inter.Name)
 			return
 		}
 		time.Sleep(time.Second * 5)
+	}
+}
+func StopInterface (rec_interface Interfaces) {
+
+
+	ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
+	ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+
+	if rec_interface.IsWifi == "true" {
+
+		//if there is any change in wpa, hostapd,dnsmasq then restart
+		if rec_interface.Mode == "hotspot" {
+
+			Kill("hostapd.*" + rec_interface.Name)
+			Kill("dnsmasq.*" + rec_interface.Name)
+
+			//clear old rules
+			IptablesClear(rec_interface)
+
+		} else if rec_interface.Mode == "default" {
+			DBusRemoveInterface(rec_interface.Name)
+
+		}
+
+	} else {
+		Kill("dhcpcd.*" + rec_interface.Name)
+		if rec_interface.Mode == "hotspot" {
+
+			Kill("dnsmasq.*" + rec_interface.Name)
+
+			//clear old rules
+			IptablesClear(rec_interface)
+
+		}
 	}
 }

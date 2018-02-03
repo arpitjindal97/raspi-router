@@ -122,6 +122,7 @@ function interface_item_clicked(element) {
             document.getElementById("route_mode_bridge").setAttribute("disabled", "");
             document.getElementById("route_int").setAttribute("disabled", "");
             document.getElementById("mode_hotspot").removeAttribute("checked");
+            document.getElementById("mode_off").removeAttribute("checked");
             this.setAttribute("checked", "");
 
         };
@@ -136,6 +137,26 @@ function interface_item_clicked(element) {
             document.getElementById("route_mode_nat").removeAttribute("disabled");
             document.getElementById("route_mode_bridge").removeAttribute("disabled");
             document.getElementById("route_int").removeAttribute("disabled");
+            document.getElementById("mode_default").removeAttribute("checked");
+            document.getElementById("mode_off").removeAttribute("checked");
+            this.setAttribute("checked", "");
+
+        };
+
+        document.getElementById("mode_off").onclick = function () {
+
+            document.getElementById("wifi_config_div").setAttribute("style", "display:none");
+            document.getElementById("dnsmasq_div").setAttribute("style", "display:none");
+            document.getElementById("hostapd_div").setAttribute("style", "display:none");
+
+            document.getElementById("ip_mode_default_div").setAttribute("style", "display:none");
+            document.getElementById("ip_mode_hotspot_div").setAttribute("style", "display:none");
+
+            document.getElementById("route_mode_nat").setAttribute("disabled", "");
+            document.getElementById("route_mode_bridge").setAttribute("disabled", "");
+            document.getElementById("route_int").setAttribute("disabled", "");
+
+            document.getElementById("mode_hotspot").removeAttribute("checked");
             document.getElementById("mode_default").removeAttribute("checked");
             this.setAttribute("checked", "");
 
@@ -225,17 +246,25 @@ function sendData() {
     var hostapd_config = $("#hostapd_config").val()
     var dnsmasq_config = $("#dnsmasq_config").val()
 
-    var ip_mode = document.getElementsByName("ip_mode_" + selectedMode);
-    for (var i = 0; i < ip_mode.length; i++) {
-        if (ip_mode.item(i).hasAttribute("checked") == true) {
-            ip_mode = ip_mode.item(i).getAttribute("value");
-            break;
+    var ip_mode ="dhcp";
+
+    var ip_addr = "";
+    var subnet_addr = "";
+
+    if (selectedMode != "off") {
+        ip_mode = document.getElementsByName("ip_mode_" + selectedMode);
+
+        for (var i = 0; i < ip_mode.length; i++) {
+            if (ip_mode.item(i).hasAttribute("checked") == true) {
+                ip_mode = ip_mode.item(i).getAttribute("value");
+                break;
+            }
         }
+         ip_addr = $("#ip_addr_static_" + selectedMode).val();
+         subnet_addr = $("#subnet_static_" + selectedMode).val();
     }
 
-    var ip_addr = $("#ip_addr_static_" + selectedMode).val();
-    var subnet_addr = $("#subnet_static_" + selectedMode).val();
-
+    console.log(selectedMode)
     var json_obj={
         "Name":name, "Mode":selectedMode,"RouteMode":selectedRouteMode,"RouteInterface":route_int,
         "IpModes":ip_mode,"IpAddress":ip_addr,"SubnetMask":subnet_addr,"Wpa":wpa_config,"Hostapd":hostapd_config,"Dnsmasq":dnsmasq_config,
