@@ -32,6 +32,14 @@ function fill_status_page() {
     });
 }
 
+$('#bridge').click(function () {
+    fill_bridge_page();
+});
+
+function fill_bridge_page() {
+    LoadHtmlDiv("content_div", "bridge.html")
+}
+
 
 var server_ip = "/api";
 $(document).ready(function () {

@@ -62,72 +62,16 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	raw = []byte(rec_interface.Dnsmasq)
 	ioutil.WriteFile("config/"+rec_interface.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
-	if rec_interface.IsWifi == "true" {
-		WifiUpdate(rec_interface, i)
-	} else {
-		EthUpdate(rec_interface, i)
-	}
 
-	/*if res == "not" {
-		if rec_interface.IpModes != File.NetworkInterfaces[i].IpModes && rec_interface.Mode == "default" {
 
-			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+	StopInterface(File.NetworkInterfaces[i])
+	time.Sleep(time.Second*2)
+	StartParticularInterface(rec_interface)
 
-			if rec_interface.IpModes == "static" {
-
-				if rec_interface.IsWifi == "true" {
-					DbusStopDhcp(rec_interface.Name)
-				} else {
-					eth_thread[rec_interface.Name] = "stop"
-					Kill("dhcpcd.*" + rec_interface.Name)
-					time.Sleep(3 * time.Second)
-				}
-
-				//assign static ip address
-				ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
-
-			} else if rec_interface.IpModes == "dhcp" {
-
-				if rec_interface.IsWifi == "true" {
-					DbusDhcpcdRoutine(rec_interface)
-				} else {
-					EthDhcp(rec_interface)
-				}
-			}
-
-		} else if rec_interface.Mode == "hotspot" &&
-			( rec_interface.IpAddress != File.NetworkInterfaces[i].IpAddress ||
-				rec_interface.SubnetMask != File.NetworkInterfaces[i].SubnetMask) {
-
-			ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-			ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
-			//assign static ip address
-
-			ExecuteWait("ifconfig", rec_interface.Name, rec_interface.IpAddress, "netmask", rec_interface.SubnetMask)
-
-		}
-	}*/
 
 	File = FirstTask()
 
 	str := "Operation Completed"
 	w.Write([]byte(str))
 
-}
-
-func WifiUpdate(rec_interface Interfaces, i int) {
-
-	StopInterface(File.NetworkInterfaces[i])
-	time.Sleep(time.Second*2)
-	StartParticularInterface(rec_interface)
-
-}
-
-func EthUpdate(rec_interface Interfaces, i int) {
-
-
-	StopInterface(File.NetworkInterfaces[i])
-	time.Sleep(time.Second*2)
-	StartParticularInterface(rec_interface)
 }

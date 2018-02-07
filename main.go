@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"encoding/json"
 	"github.com/godbus/dbus"
+	"os"
+	"fmt"
 )
 
 
@@ -15,7 +17,12 @@ var dbus_objects map[string] chan *dbus.Signal
 
 var eth_thread map[string] string
 
+
+var path = "/home/arpit/Desktop/workspace/angular/mdl/"
+
 func main() {
+
+	SetPath()
 
 	File = FirstTask()
 
@@ -28,7 +35,6 @@ func main() {
 	eth_thread = make(map[string] string)
 
 	StartTheInterfaces(File)
-
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
@@ -93,4 +99,15 @@ func Systemctl(action string,service_name string) {
 	cmd := exec.Command("systemctl",action,service_name)
 	cmd.Start()
 	//cmd.Wait()
+}
+
+func SetPath() {
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	path=pwd+"/"
+
 }

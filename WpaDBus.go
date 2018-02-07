@@ -34,14 +34,14 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Inte
 		panic(err)
 	}
 
-	log.Println(intfPath)
+	log.Println(ifname+" Object path : "+string(intfPath))
 
 	conn.Close()
 }
 
 func DBusRemoveInterface(ifname string) {
 
-	fmt.Println("removing interface " + ifname)
+	fmt.Println("Removing "+ifname+" from WPA Supplicant")
 
 	//stop running dhcpcd
 	DbusStopDhcp(ifname)
@@ -61,11 +61,11 @@ func DBusRemoveInterface(ifname string) {
 		panic(err)
 	}
 
-	log.Println(intfPath)
+	log.Println(ifname+" Object path : "+string(intfPath))
 
 	obj.Call("fi.w1.wpa_supplicant1.RemoveInterface", 0, intfPath)
 
-	fmt.Println("interface removed " + ifname)
+	fmt.Println(ifname +"removed")
 
 }
 
@@ -99,7 +99,7 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 			return
 		}
 
-		fmt.Println("routine called")
+		log.Println("Listening on "+inter.Name+" to get connected to a Network")
 
 		outer :for v := range dbus_objects[inter.Name] {
 
@@ -110,7 +110,7 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 			for key := range mm {
 
 				if key == "Stop" {
-					fmt.Println("stop signal received")
+					log.Println("Stoping the listener on "+inter.Name)
 					break outer
 				}
 				//fmt.Print(key + "\t")
@@ -120,12 +120,12 @@ func DbusDhcpcdRoutine(inter Interfaces) {
 					continue
 				}
 
-				fmt.Println(key + "\t" + mm[key].(string))
+				log.Println(inter.Name+"\t"+key + "\t" + mm[key].(string))
 
 				if mm[key].(string) == "completed" {
 
+					log.Println("Started dhcpcd on "+inter.Name)
 					go ExecuteWait("dhcpcd","-q","-w",inter.Name)
-
 
 					break outer
 				}
@@ -155,7 +155,7 @@ func DbusStopDhcp(ifname string) {
 
 	if op == "" {
 
-		fmt.Println("dhcpcd not running")
+		//log.Println("Sending the signal to ")
 		dbus_objects[ifname] <- &dd
 
 	}
