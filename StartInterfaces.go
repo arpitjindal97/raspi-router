@@ -97,7 +97,7 @@ func StartParticularInterface(inter Interfaces) {
 		log.Println("Configuring IP Tables for " + inter.Name)
 		IptablesCreate(inter)
 
-	} else if inter.Name == "bridge" {
+	} else if inter.Mode == "bridge" {
 
 		if inter.BridgeMode == "wpa" {
 

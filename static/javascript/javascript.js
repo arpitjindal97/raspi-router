@@ -283,7 +283,7 @@ function sendData() {
     var ip_addr = "";
     var subnet_addr = "";
 
-    if (selectedMode != "off") {
+    if (selectedMode != "off" && selectedMode != "bridge") {
         ip_mode = document.getElementsByName("ip_mode_" + selectedMode);
 
         for (var i = 0; i < ip_mode.length; i++) {
