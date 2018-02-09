@@ -35,8 +35,8 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file.NetworkInterfaces[i].Mode = rec_interface.Mode
-	file.NetworkInterfaces[i].RouteMode = rec_interface.RouteMode
-	file.NetworkInterfaces[i].RouteInterface = rec_interface.RouteInterface
+	file.NetworkInterfaces[i].BridgeMode = rec_interface.BridgeMode
+	file.NetworkInterfaces[i].NatInterface = rec_interface.NatInterface
 	rec_interface.IsWifi = file.NetworkInterfaces[i].IsWifi
 	if rec_interface.Mode != "off" {
 		file.NetworkInterfaces[i].IpModes = rec_interface.IpModes

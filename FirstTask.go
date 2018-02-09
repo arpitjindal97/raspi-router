@@ -10,79 +10,79 @@ import (
 type ConfigFile struct {
 	NetworkInterfaces []Interfaces
 }
-type Interfaces struct{
-	Name 			string
-	IsWifi 			string
-	Mode 			string
-	RouteMode 		string
-	RouteInterface 	string
-	IpModes 		string
-	IpAddress 		string
-	SubnetMask 		string
-	Wpa 			string
-	Hostapd 		string
-	Dnsmasq 		string
-	Info			BasicInfo
+type Interfaces struct {
+	Name        	string
+	IsWifi     		string
+	Mode       		string
+	BridgeMode		string
+	NatInterface	string
+	IpModes        	string
+	IpAddress      	string
+	SubnetMask     	string
+	Wpa            	string
+	Hostapd        	string
+	Dnsmasq        	string
+	Info           	BasicInfo
 }
 
-func FirstTask() ConfigFile{
+func FirstTask() ConfigFile {
 
-	out, _ := exec.Command("sh","-c","ip link | grep -v link | cut -f 2 -d ' '").Output()
+	out, _ := exec.Command("sh", "-c", "ip link | grep -v link | cut -f 2 -d ' '").Output()
 
 	interface_names := GetInterfaceName(out)
 
-	raw,err := ioutil.ReadFile("config/config.json")
+	raw, err := ioutil.ReadFile("config/config.json")
 
 	var file ConfigFile
 
-	if err !=nil{
-		bb,_ := json.MarshalIndent(file,"","	")
+	if err != nil {
+		bb, _ := json.MarshalIndent(file, "", "	")
 
-		_,err = ioutil.ReadDir("config")
-		if err !=nil {
-			os.Mkdir("config",0755)
+		_, err = ioutil.ReadDir("config")
+		if err != nil {
+			os.Mkdir("config", 0755)
 		}
 
-		ioutil.WriteFile("config/config.json",bb,0644)
+		ioutil.WriteFile("config/config.json", bb, 0644)
 		raw = bb
 	}
 
-	json.Unmarshal(raw,&file)
+	json.Unmarshal(raw, &file)
 
-	for i:=0; i< len(file.NetworkInterfaces);i++ {
+	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
 		name := file.NetworkInterfaces[i].Name
-		match:=0
-		for _,j := range interface_names{
+		match := 0
+		for _, j := range interface_names {
 
 			if name == j {
-				match=1
+				match = 1
 			}
 		}
-		if match == 0{
-			file.NetworkInterfaces = append(file.NetworkInterfaces[:i],file.NetworkInterfaces[i+1:]...)
+		if match == 0 {
+			file.NetworkInterfaces = append(file.NetworkInterfaces[:i], file.NetworkInterfaces[i+1:]...)
 			i--
 		}
 	}
 
-	for i:=0;i< len(interface_names);i++{
+	for i := 0; i < len(interface_names); i++ {
 
-		match:=0
-		for j:=0;j<len(file.NetworkInterfaces);j++{
+		match := 0
+		for j := 0; j < len(file.NetworkInterfaces); j++ {
 
-			if file.NetworkInterfaces[j].Name ==  interface_names[i] {
-				match=1
+			if file.NetworkInterfaces[j].Name == interface_names[i] {
+				match = 1
 			}
 		}
-		if match == 0{
-			file.NetworkInterfaces = append(file.NetworkInterfaces[:],CreateDefaultInterface(interface_names[i]))
+		if match == 0 {
+			file.NetworkInterfaces = append(file.NetworkInterfaces[:], CreateDefaultInterface(interface_names[i]))
 		}
 
 	}
 
-	b,_ := json.MarshalIndent(file,"","	")
+	b, _ := json.MarshalIndent(file, "", "	")
 
-	ioutil.WriteFile("config/config.json",b,0644)
+	ioutil.WriteFile("config/config.json", b, 0644)
 
 	//b,_ = json.MarshalIndent(file,"","	")
 	file = CaptureConfFiles(file)
@@ -95,51 +95,51 @@ func CreateDefaultInterface(name string) Interfaces {
 	var name_default Interfaces
 	name_default.Name = name
 
-	str := GetOutput("iwconfig "+name)
+	str := GetOutput("iwconfig " + name)
 
-	if str == ""{
+	if str == "" {
 		name_default.IsWifi = "false"
 	} else {
 		name_default.IsWifi = "true"
 	}
 
 	name_default.Mode = "default"
-	name_default.RouteMode = "nat"
-	name_default.RouteInterface = ""
+	name_default.BridgeMode = "wpa"
+	name_default.NatInterface = ""
 	name_default.IpModes = "dhcp"
 
 	return name_default
 }
-func CaptureConfFiles(file ConfigFile) ConfigFile{
+func CaptureConfFiles(file ConfigFile) ConfigFile {
 
-	for i:=0;i<len(file.NetworkInterfaces);i++ {
+	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
-		name:= file.NetworkInterfaces[i].Name
+		name := file.NetworkInterfaces[i].Name
 
 		// Dnsmasq
-		raw,err := ioutil.ReadFile("config/"+name+"_dnsmasq.conf")
-		if err !=nil {
-			str:="bind-interfaces\n"+
-			"server=8.8.8.8\n"+
-			"domain-needed\n"+
-			"bogus-priv\n"+
-			"dhcp-range=192.168.2.2,192.168.2.100,12h"
+		raw, err := ioutil.ReadFile("config/" + name + "_dnsmasq.conf")
+		if err != nil {
+			str := "bind-interfaces\n" +
+				"server=8.8.8.8\n" +
+				"domain-needed\n" +
+				"bogus-priv\n" +
+				"dhcp-range=192.168.2.2,192.168.2.100,12h"
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_dnsmasq.conf",raw,os.FileMode(0644))
+			ioutil.WriteFile("config/"+name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
 		}
 		file.NetworkInterfaces[i].Dnsmasq = string(raw)
 
-		if file.NetworkInterfaces[i].IsWifi=="false" {
+		if file.NetworkInterfaces[i].IsWifi == "false" {
 			continue
 		}
 
 		// Hostapd
-		raw,err = ioutil.ReadFile("config/"+name+"_hostapd.conf")
-		if err !=nil {
-			str:="interface="+name+"\n" +
+		raw, err = ioutil.ReadFile("config/" + name + "_hostapd.conf")
+		if err != nil {
+			str := "interface=" + name + "\n" +
 				"driver=nl80211\n" +
 				"ssid=Raspberry-Hotspot\n" +
 				"hw_mode=g\n" +
@@ -157,25 +157,24 @@ func CaptureConfFiles(file ConfigFile) ConfigFile{
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_hostapd.conf",raw,os.FileMode(0644))
+			ioutil.WriteFile("config/"+name+"_hostapd.conf", raw, os.FileMode(0644))
 
 		}
 		file.NetworkInterfaces[i].Hostapd = string(raw)
 
-
 		// Wpa Supplicant
-		raw,err = ioutil.ReadFile("config/"+name+"_wpa.conf")
-		if err !=nil {
-			str:=	"ctrl_interface=/run/wpa_supplicant\n" +
-					"update_config=1\n" +
-					"network={\n" +
-					"ssid=\"Your Wifi Name\"\n" +
-					"psk=\"Your Password\"\n" +
-					"}\n"
+		raw, err = ioutil.ReadFile("config/" + name + "_wpa.conf")
+		if err != nil {
+			str := "ctrl_interface=/run/wpa_supplicant\n" +
+				"update_config=1\n" +
+				"network={\n" +
+				"ssid=\"Your Wifi Name\"\n" +
+				"psk=\"Your Password\"\n" +
+				"}\n"
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_wpa.conf",raw,os.FileMode(0644))
+			ioutil.WriteFile("config/"+name+"_wpa.conf", raw, os.FileMode(0644))
 
 		}
 		file.NetworkInterfaces[i].Wpa = string(raw)
@@ -185,24 +184,22 @@ func CaptureConfFiles(file ConfigFile) ConfigFile{
 	return file
 }
 
-
 func GetInterfaceName(out []byte) []string {
 
-
 	var interfaceNames []string
-	count :=0
-	interfaceNames = append(interfaceNames,"")
+	count := 0
+	interfaceNames = append(interfaceNames, "")
 
-	for i:=0; i<len(string(out)) ; i++ {
+	for i := 0; i < len(string(out)); i++ {
 
 		s := string(out[i])
 
-		if s==":" && (out[i+1]) == 10 {
+		if s == ":" && (out[i+1]) == 10 {
 			count++
 			if i+2 != len(string(out)) {
 				interfaceNames = append(interfaceNames, "")
 			}
-			i++;
+			i++
 			continue
 		}
 

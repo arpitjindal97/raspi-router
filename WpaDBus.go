@@ -41,7 +41,7 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Inte
 
 func DBusRemoveInterface(ifname string) {
 
-	fmt.Println("Removing "+ifname+" from WPA Supplicant")
+	log.Println("Removing "+ifname+" from WPA Supplicant")
 
 	//stop running dhcpcd
 	DbusStopDhcp(ifname)
@@ -65,7 +65,7 @@ func DBusRemoveInterface(ifname string) {
 
 	obj.Call("fi.w1.wpa_supplicant1.RemoveInterface", 0, intfPath)
 
-	fmt.Println(ifname +"removed")
+	log.Println(ifname +" Removed")
 
 }
 
@@ -151,7 +151,7 @@ func DbusStopDhcp(ifname string) {
 
 	op := GetOutput("ps aux | grep dhcpcd |grep -v grep | grep "+ifname)
 
-	fmt.Println("output: "+op)
+	//fmt.Println("output: "+op)
 
 	if op == "" {
 

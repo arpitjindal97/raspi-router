@@ -76,16 +76,16 @@ function interface_item_clicked(element) {
 
         var i;
 
-        document.getElementById("route_int").innerHTML = "<option value='' id='route_int_'></option>";
+        document.getElementById("nat_int").innerHTML = "<option value='' id='nat_int_'></option>";
 
         for (var j = 0; j < data.length; j++) {
             if (data[j]["Name"] == element.innerHTML) {
                 i = j;
                 continue;
             }
-            document.getElementById("route_int").innerHTML +=
+            document.getElementById("nat_int").innerHTML +=
                 "<option value=\"" + data[j]["Name"] +
-                "\" id='route_int_" + data[j]["Name"] + "'>" + data[j]["Name"] + "</option>";
+                "\" id='nat_int_" + data[j]["Name"] + "'>" + data[j]["Name"] + "</option>";
         }
 
         document.getElementById("interface_name").innerHTML = data[i]["Name"];
@@ -98,12 +98,12 @@ function interface_item_clicked(element) {
         document.getElementById("trans_bytes").innerHTML = data[i]["Info"]["TransBytes"];
         document.getElementById("trans_packs").innerHTML = data[i]["Info"]["TransPackts"];
 
-        document.getElementById("route_mode_" + data[i]["RouteMode"]).setAttribute("checked", "")
+        document.getElementById("bridge_mode_" + data[i]["BridgeMode"]).setAttribute("checked", "")
 
-        var element1 = document.getElementById("route_int_" + data[i]["RouteInterface"])
+        var element1 = document.getElementById("nat_int_" + data[i]["NatInterface"])
 
         if (element1 == null )
-            document.getElementById("route_int_").setAttribute("selected", "")
+            document.getElementById("nat_int_").setAttribute("selected", "")
         else
             element1.setAttribute("selected","")
 
@@ -126,11 +126,12 @@ function interface_item_clicked(element) {
             document.getElementById("ip_mode_hotspot_div").setAttribute("style", "display:none");
             document.getElementById("wifi_config_div").removeAttribute("style");
             document.getElementById("ip_mode_default_div").removeAttribute("style");
-            document.getElementById("route_mode_nat").setAttribute("disabled", "");
-            document.getElementById("route_mode_bridge").setAttribute("disabled", "");
-            document.getElementById("route_int").setAttribute("disabled", "");
+            document.getElementById("bridge_mode_wpa").setAttribute("disabled", "");
+            document.getElementById("bridge_mode_hostapd").setAttribute("disabled", "");
+            document.getElementById("nat_int").setAttribute("disabled", "");
             document.getElementById("mode_hotspot").removeAttribute("checked");
             document.getElementById("mode_off").removeAttribute("checked");
+            document.getElementById("mode_bridge").removeAttribute("checked");
             this.setAttribute("checked", "");
 
         };
@@ -142,14 +143,36 @@ function interface_item_clicked(element) {
             document.getElementById("dnsmasq_div").removeAttribute("style");
             document.getElementById("hostapd_div").removeAttribute("style");
             document.getElementById("ip_mode_hotspot_div").removeAttribute("style");
-            document.getElementById("route_mode_nat").removeAttribute("disabled");
-            document.getElementById("route_mode_bridge").removeAttribute("disabled");
-            document.getElementById("route_int").removeAttribute("disabled");
+            document.getElementById("bridge_mode_wpa").setAttribute("disabled","");
+            document.getElementById("bridge_mode_hostapd").setAttribute("disabled","");
+            document.getElementById("nat_int").removeAttribute("disabled");
             document.getElementById("mode_default").removeAttribute("checked");
             document.getElementById("mode_off").removeAttribute("checked");
+            document.getElementById("mode_bridge").removeAttribute("checked");
             this.setAttribute("checked", "");
 
         };
+
+        document.getElementById("mode_bridge").onclick = function () {
+
+            document.getElementById("wifi_config_div").removeAttribute("style");
+            document.getElementById("dnsmasq_div").setAttribute("style", "display:none");
+            document.getElementById("hostapd_div").removeAttribute("style");
+
+            document.getElementById("ip_mode_default_div").setAttribute("style", "display:none");
+            document.getElementById("ip_mode_hotspot_div").setAttribute("style", "display:none");
+
+            document.getElementById("bridge_mode_wpa").removeAttribute("disabled");
+            document.getElementById("bridge_mode_hostapd").removeAttribute("disabled");
+            document.getElementById("nat_int").setAttribute("disabled", "");
+
+            document.getElementById("mode_hotspot").removeAttribute("checked");
+            document.getElementById("mode_default").removeAttribute("checked");
+            document.getElementById("mode_bridge").removeAttribute("checked");
+            this.setAttribute("checked", "");
+
+        };
+
 
         document.getElementById("mode_off").onclick = function () {
 
@@ -160,12 +183,13 @@ function interface_item_clicked(element) {
             document.getElementById("ip_mode_default_div").setAttribute("style", "display:none");
             document.getElementById("ip_mode_hotspot_div").setAttribute("style", "display:none");
 
-            document.getElementById("route_mode_nat").setAttribute("disabled", "");
-            document.getElementById("route_mode_bridge").setAttribute("disabled", "");
-            document.getElementById("route_int").setAttribute("disabled", "");
+            document.getElementById("bridge_mode_wpa").setAttribute("disabled", "");
+            document.getElementById("bridge_mode_hostapd").setAttribute("disabled", "");
+            document.getElementById("nat_int").setAttribute("disabled", "");
 
             document.getElementById("mode_hotspot").removeAttribute("checked");
             document.getElementById("mode_default").removeAttribute("checked");
+            document.getElementById("mode_bridge").removeAttribute("checked");
             this.setAttribute("checked", "");
 
         };
@@ -214,14 +238,14 @@ function interface_item_clicked(element) {
             sendData()
         }
 
-        document.getElementById("route_mode_nat").onclick = function (ev) {
-            document.getElementById("route_mode_bridge").removeAttribute("checked")
-            document.getElementById("route_mode_nat").setAttribute("checked", "")
+        document.getElementById("bridge_mode_wpa").onclick = function (ev) {
+            document.getElementById("bridge_mode_hostapd").removeAttribute("checked")
+            document.getElementById("bridge_mode_wpa").setAttribute("checked", "")
         }
 
-        document.getElementById("route_mode_bridge").onclick = function (ev) {
-            document.getElementById("route_mode_bridge").setAttribute("checked", "")
-            document.getElementById("route_mode_nat").removeAttribute("checked")
+        document.getElementById("bridge_mode_hostapd").onclick = function (ev) {
+            document.getElementById("bridge_mode_wpa").removeAttribute("checked")
+            document.getElementById("bridge_mode_hostapd").setAttribute("checked", "")
         }
 
     });
@@ -239,16 +263,16 @@ function sendData() {
         }
     }
 
-    var route_modes = document.getElementsByName("route");
-    var selectedRouteMode;
-    for (var i = 0; i < route_modes.length; i++) {
-        if (route_modes.item(i).hasAttribute("checked") == true) {
-            selectedRouteMode = route_modes.item(i).getAttribute("value");
+    var bridge_modes = document.getElementsByName("bridge");
+    var selectedBridgeMode;
+    for (var i = 0; i < bridge_modes.length; i++) {
+        if (bridge_modes.item(i).hasAttribute("checked") == true) {
+            selectedBridgeMode = bridge_modes.item(i).getAttribute("value");
         }
     }
-    var route_int = document.getElementById("route_int")
+    var nat_int = document.getElementById("nat_int")
 
-    route_int = route_int.options[route_int.selectedIndex].text;
+    nat_int = nat_int.options[nat_int.selectedIndex].text;
 
     var wpa_config = $("#wpa_config_area").val()
     var hostapd_config = $("#hostapd_config").val()
@@ -274,7 +298,7 @@ function sendData() {
 
     console.log(selectedMode)
     var json_obj={
-        "Name":name, "Mode":selectedMode,"RouteMode":selectedRouteMode,"RouteInterface":route_int,
+        "Name":name, "Mode":selectedMode,"BridgeMode":selectedBridgeMode,"NatInterface":nat_int,
         "IpModes":ip_mode,"IpAddress":ip_addr,"SubnetMask":subnet_addr,"Wpa":wpa_config,"Hostapd":hostapd_config,"Dnsmasq":dnsmasq_config,
         "IsWifi":"","Info":null
     };

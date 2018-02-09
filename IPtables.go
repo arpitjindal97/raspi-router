@@ -4,12 +4,12 @@ func IptablesCreate(inter Interfaces) {
 
 	if inter.Mode == "hotspot"{
 
-		ExecuteWait("iptables","-t","nat","-A","POSTROUTING","-o",inter.RouteInterface,"-j","MASQUERADE")
+		ExecuteWait("iptables","-t","nat","-A","POSTROUTING","-o",inter.NatInterface,"-j","MASQUERADE")
 
-		ExecuteWait("iptables", "-A" ,"FORWARD" ,"-i", inter.RouteInterface,"-o",
+		ExecuteWait("iptables", "-A" ,"FORWARD" ,"-i", inter.NatInterface,"-o",
 			inter.Name, "-m" ,"state" ,"--state" ,"RELATED,ESTABLISHED" ,"-j" ,"ACCEPT")
 
-		ExecuteWait("iptables","-A","FORWARD","-i",inter.Name,"-o",inter.RouteInterface ,"-j","ACCEPT")
+		ExecuteWait("iptables","-A","FORWARD","-i",inter.Name,"-o",inter.NatInterface ,"-j","ACCEPT")
 
 	}
 }
@@ -17,12 +17,12 @@ func IptablesCreate(inter Interfaces) {
 func IptablesClear(old_inter Interfaces) {
 
 	if old_inter.Mode == "hotspot" {
-		ExecuteWait("iptables","-t","nat","-D","POSTROUTING","-o",old_inter.RouteInterface,"-j","MASQUERADE")
+		ExecuteWait("iptables","-t","nat","-D","POSTROUTING","-o",old_inter.NatInterface,"-j","MASQUERADE")
 
-		ExecuteWait("iptables", "-D" ,"FORWARD" ,"-i", old_inter.RouteInterface,"-o",
+		ExecuteWait("iptables", "-D" ,"FORWARD" ,"-i", old_inter.NatInterface,"-o",
 			old_inter.Name, "-m" ,"state" ,"--state" ,"RELATED,ESTABLISHED" ,"-j" ,"ACCEPT")
 
-		ExecuteWait("iptables","-D","FORWARD","-i",old_inter.Name,"-o",old_inter.RouteInterface ,"-j","ACCEPT")
+		ExecuteWait("iptables","-D","FORWARD","-i",old_inter.Name,"-o",old_inter.NatInterface ,"-j","ACCEPT")
 
 	}
 }
