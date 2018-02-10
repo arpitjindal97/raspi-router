@@ -23,14 +23,14 @@ type BasicInfo struct {
 	Channel      string
 }
 
-func NetworkInterface(w http.ResponseWriter, r *http.Request) {
+func PhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
-	for i := 0; i < len(File.NetworkInterfaces); i++ {
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
-		File.NetworkInterfaces[i].Info = GetBasicInfo(File.NetworkInterfaces[i])
+		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
 	}
 
-	b, _ := json.MarshalIndent(File.NetworkInterfaces, "", "	")
+	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
 
 
 
@@ -40,26 +40,9 @@ func NetworkInterface(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func GetBasicInfo(netInt Interfaces) BasicInfo {
+func GetPhysicalInterfaceInfo(netInt PhysicalInterfaces) BasicInfo {
 
-	var info BasicInfo
-
-	info.IpAddress = GetOutput("ip addr show " + netInt.Name + " | grep -v inet6 | awk '/inet/{print $2}'")
-
-	info.Gateway = GetOutput("route -n | grep " + netInt.Name + " | grep UG | awk '{print $2}'")
-
-	info.BroadcastAddress = GetOutput("ip addr show " + netInt.Name + " | grep inet | awk '/brd/ {print $4}'")
-
-	info.MacAddress = GetOutput("ip addr show " + netInt.Name + " | awk '/ether/{print $2}'")
-
-	info.RecvPackts = GetOutput("ip -s link show " + netInt.Name + " | tail -n 3 | head -n 1 | awk '{print $2}'")
-
-	info.RecvBytes = GetOutput("ip -s link show " + netInt.Name + " | tail -n 3 | head -n 1 | awk '{print $1}'")
-
-	info.TransPackts = GetOutput("ip -s link show " + netInt.Name + " | tail -n 1 | awk '{print $2}'")
-
-	info.TransBytes = GetOutput("ip -s link show " + netInt.Name + " | tail -n 1 | awk '{print $1}'")
-
+	info := GetCommonInterfaceInfo(netInt.Name)
 
 	if netInt.IsWifi == "true" {
 
@@ -75,5 +58,28 @@ func GetBasicInfo(netInt Interfaces) BasicInfo {
 
 		info.Channel = GetOutput("iw dev " + netInt.Name + " info | grep channel | awk '{print $2}'")
 	}
+	return info
+}
+
+func GetCommonInterfaceInfo(ifname string) BasicInfo{
+
+	var info BasicInfo
+
+	info.IpAddress = GetOutput("ip addr show " + ifname + " | grep -v inet6 | awk '/inet/{print $2}'")
+
+	info.Gateway = GetOutput("route -n | grep " + ifname + " | grep UG | awk '{print $2}'")
+
+	info.BroadcastAddress = GetOutput("ip addr show " + ifname + " | grep inet | awk '/brd/ {print $4}'")
+
+	info.MacAddress = GetOutput("ip addr show " + ifname + " | awk '/ether/{print $2}'")
+
+	info.RecvPackts = GetOutput("ip -s link show " + ifname + " | tail -n 3 | head -n 1 | awk '{print $2}'")
+
+	info.RecvBytes = GetOutput("ip -s link show " + ifname + " | tail -n 3 | head -n 1 | awk '{print $1}'")
+
+	info.TransPackts = GetOutput("ip -s link show " + ifname + " | tail -n 1 | awk '{print $2}'")
+
+	info.TransBytes = GetOutput("ip -s link show " + ifname + " | tail -n 1 | awk '{print $1}'")
+
 	return info
 }

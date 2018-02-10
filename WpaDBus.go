@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func DBusCreateInterface(ifname string, driver string, config string, inter Interfaces) {
+func DBusCreateInterface(ifname string, driver string, config string, inter PhysicalInterfaces) {
 
 	conn,err := dbus.SystemBusPrivate()
 	if err != nil {
@@ -69,7 +69,7 @@ func DBusRemoveInterface(ifname string) {
 
 }
 
-func DbusDhcpcdRoutine(inter Interfaces) {
+func DbusDhcpcdRoutine(inter PhysicalInterfaces) {
 
 	conn,_ := dbus.SystemBusPrivate()
 	conn.Auth(nil)
@@ -163,7 +163,7 @@ func DbusStopDhcp(ifname string) {
 	Kill("dhcpcd.*"+ifname)
 }
 
-func DbusFetchProperty(inter Interfaces) string {
+func DbusFetchProperty(inter PhysicalInterfaces) string {
 
 	conn, err := dbus.SystemBusPrivate()
 	conn.Auth(nil)

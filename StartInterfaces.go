@@ -33,18 +33,18 @@ func StartTheInterfaces(file ConfigFile) {
 
 	time.Sleep(time.Second * 2)
 
-	for i := 0; i < len(file.NetworkInterfaces); i++ {
+	for i := 0; i < len(file.PhysicalInterfaces); i++ {
 
-		log.Println("Starting up the interface " + file.NetworkInterfaces[i].Name)
+		log.Println("Starting up the interface " + file.PhysicalInterfaces[i].Name)
 
-		ExecuteWait("ip", "link", "set", file.NetworkInterfaces[i].Name, "up")
+		ExecuteWait("ip", "link", "set", file.PhysicalInterfaces[i].Name, "up")
 
-		StartParticularInterface(file.NetworkInterfaces[i])
+		StartParticularInterface(file.PhysicalInterfaces[i])
 	}
 
 }
 
-func StartParticularInterface(inter Interfaces) {
+func StartParticularInterface(inter PhysicalInterfaces) {
 
 	if inter.Name == "lo" {
 		log.Println("Ignoring " + inter.Name)
@@ -113,7 +113,7 @@ func StartParticularInterface(inter Interfaces) {
 	}
 }
 
-func EthStart(inter Interfaces) {
+func EthStart(inter PhysicalInterfaces) {
 
 	eth_thread[inter.Name] = "start"
 
@@ -151,7 +151,7 @@ func EthStart(inter Interfaces) {
 		// Nothing to do
 	}
 }
-func EthDhcp(inter Interfaces) {
+func EthDhcp(inter PhysicalInterfaces) {
 
 	for eth_thread[inter.Name] == "start" {
 
@@ -164,19 +164,14 @@ func EthDhcp(inter Interfaces) {
 		time.Sleep(time.Second * 5)
 	}
 }
-func StopInterface(rec_interface Interfaces) {
-
-	log.Println("Flushing the existing IP addr and route of " + rec_interface.Name)
-
-	ExecuteWait("ip", "addr", "flush", "dev", rec_interface.Name)
-	ExecuteWait("ip", "route", "flush", "dev", rec_interface.Name)
+func StopInterface(rec_interface PhysicalInterfaces) {
 
 	if rec_interface.IsWifi == "true" {
 
 		//if there is any change in wpa, hostapd,dnsmasq then restart
 		if rec_interface.Mode == "hotspot" {
 
-			log.Println("Kiling Hostapd and Dnsmasq of " + rec_interface.Name)
+			log.Println("Killing Hostapd and Dnsmasq of " + rec_interface.Name)
 			Kill("hostapd.*" + rec_interface.Name)
 			Kill("dnsmasq.*" + rec_interface.Name)
 

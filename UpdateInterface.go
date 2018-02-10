@@ -12,7 +12,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 	// reading response from frontend
 	///storing in rec_interface
-	var rec_interface Interfaces
+	var rec_interface PhysicalInterfaces
 	decoder := json.NewDecoder(r.Body)
 
 	err := decoder.Decode(&rec_interface)
@@ -27,31 +27,31 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 	var i int
 
-	for i = 0; i < len(file.NetworkInterfaces); i++ {
+	for i = 0; i < len(file.PhysicalInterfaces); i++ {
 
-		if file.NetworkInterfaces[i].Name == rec_interface.Name {
+		if file.PhysicalInterfaces[i].Name == rec_interface.Name {
 			break
 		}
 	}
 
-	file.NetworkInterfaces[i].Mode = rec_interface.Mode
-	file.NetworkInterfaces[i].BridgeMode = rec_interface.BridgeMode
-	file.NetworkInterfaces[i].NatInterface = rec_interface.NatInterface
-	rec_interface.IsWifi = file.NetworkInterfaces[i].IsWifi
+	file.PhysicalInterfaces[i].Mode = rec_interface.Mode
+	file.PhysicalInterfaces[i].BridgeMode = rec_interface.BridgeMode
+	file.PhysicalInterfaces[i].NatInterface = rec_interface.NatInterface
+	rec_interface.IsWifi = file.PhysicalInterfaces[i].IsWifi
 	if rec_interface.Mode != "off" {
-		file.NetworkInterfaces[i].IpModes = rec_interface.IpModes
-		file.NetworkInterfaces[i].IpAddress = rec_interface.IpAddress
-		file.NetworkInterfaces[i].SubnetMask = rec_interface.SubnetMask
+		file.PhysicalInterfaces[i].IpModes = rec_interface.IpModes
+		file.PhysicalInterfaces[i].IpAddress = rec_interface.IpAddress
+		file.PhysicalInterfaces[i].SubnetMask = rec_interface.SubnetMask
 	}
-	file.NetworkInterfaces[i].Wpa = ""
-	file.NetworkInterfaces[i].Hostapd = ""
-	file.NetworkInterfaces[i].Dnsmasq = ""
+	file.PhysicalInterfaces[i].Wpa = ""
+	file.PhysicalInterfaces[i].Hostapd = ""
+	file.PhysicalInterfaces[i].Dnsmasq = ""
 
 	b, _ := json.MarshalIndent(file, "", "	")
 
 	ioutil.WriteFile("config/config.json", b, 0644)
 
-	if file.NetworkInterfaces[i].IsWifi == "true" {
+	if file.PhysicalInterfaces[i].IsWifi == "true" {
 
 		raw = []byte(rec_interface.Hostapd)
 		ioutil.WriteFile("config/"+rec_interface.Name+"_hostapd.conf", raw, os.FileMode(0644))
@@ -64,7 +64,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 
 
-	StopInterface(File.NetworkInterfaces[i])
+	StopInterface(File.PhysicalInterfaces[i])
 	time.Sleep(time.Second*2)
 	StartParticularInterface(rec_interface)
 

@@ -26,9 +26,9 @@ func main() {
 
 	File = FirstTask()
 
-	http.HandleFunc("/api/interfaces",NetworkInterface)
-	http.HandleFunc("/api/device_info",DeviceInfo)
-	http.HandleFunc("/api/update_interface",UpdateInterface)
+	http.HandleFunc("/api/PhysicalInterfaces",PhysicalInterface)
+	http.HandleFunc("/api/DeviceInfo",DeviceInfo)
+	http.HandleFunc("/api/UpdateInterface",UpdateInterface)
 	http.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)
@@ -45,6 +45,13 @@ func main() {
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
+
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
+
+		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+	}
+
+
 	b,_ := json.MarshalIndent(File,"","	")
 
 	w.Header().Set("Content-Type", "application/json")
@@ -98,7 +105,7 @@ func ExecuteWait(name string, arg ...string){
 func Systemctl(action string,service_name string) {
 	cmd := exec.Command("systemctl",action,service_name)
 	cmd.Start()
-	//cmd.Wait()
+	go cmd.Wait()
 }
 
 func SetPath() {

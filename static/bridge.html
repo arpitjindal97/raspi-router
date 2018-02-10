@@ -1,22 +1,20 @@
 <div class="mdl-grid ">
-    <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid--no-spacing">
+    <div class="demo-cards mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
         <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Manage Bridges</h2>
 
-        <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
+        <div class="mdl-card mdl-cell--6-col mdl-grid">
+
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Name of the Bridge</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
                 <input class="mdl-cell--5-col mdl-textfield__input" id="ip_addr_static_default"/>
 
             </div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--4-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+            <div class="mdl-cell--12-col mdl-grid"></div>
+            <div class="mdl-cell--12-col mdl-typography--text-center">
+                <button id="interface_save_button"
+                        class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                 >Create
-                </button>
-                <div class="mdl-cell--1-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                >Delete
                 </button>
             </div>
             <div class="mdl-cell--12-col mdl-grid"></div>
@@ -24,7 +22,7 @@
                 <h6 class="mdl-cell--5-col">Select Bridge</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
                 <h6 class="mdl-cell--5-col" id="interface_name">
-                    <div class=" " >
+                    <div class=" ">
                         <select id="route_int" style="width: 80px;" name="route_int">
                             <option>br0</option>
                             <option>br1</option>
@@ -34,106 +32,97 @@
                 </h6>
             </div>
 
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--5-col">IP Mode</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--5-col">
-                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_dhcp_default">
-                            <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default" value="dhcp"
-                            >
-                            <span class="mdl-radio__label">DHCP</span>
-                        </label>
-                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_static_default">
-                            <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default" value="static">
-                            <span class="mdl-radio__label">Static</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--5-col">IP Address</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--5-col ">
-                        <input class="mdl-textfield__input" id="ip_addr_static_default"/>
-                    </div>
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--5-col">Subnet Mask</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--5-col ">
-                        <input class="mdl-textfield__input" id="subnet_static_default"/>
-                    </div>
-                </div>
-            <div class="mdl-cell--12-col mdl-grid"></div>
             <div class="mdl-cell--12-col mdl-grid">
-                <h6 class="mdl-cell--5-col">Select Interface</h6>
+                <h6 class="mdl-cell--5-col">IP Mode</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col" id="interface_name">
-                    <div class=" " >
-                        <select id="route_int" style="width: 80px;" name="route_int">
-                            <option>enp7s0</option>
-                            <option>wlp6s0</option>
-                        </select>
-                    </div>
-                </h6>
+                <div class="mdl-cell--5-col">
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
+                           for="ip_mode_dhcp_default">
+                        <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default"
+                               value="dhcp"
+                        >
+                        <span class="mdl-radio__label">DHCP</span>
+                    </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
+                           for="ip_mode_static_default">
+                        <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default"
+                               value="static">
+                        <span class="mdl-radio__label">Static</span>
+                    </label>
+                </div>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
+                <h6 class="mdl-cell--5-col">IP Address</h6>
+                <h6 class="mdl-cell--2-col">:</h6>
+                <div class="mdl-cell--5-col ">
+                    <input class="mdl-textfield__input" id="ip_addr_static_default"/>
+                </div>
+            </div>
+            <div class="mdl-cell--12-col mdl-grid">
+                <h6 class="mdl-cell--5-col">Subnet Mask</h6>
+                <h6 class="mdl-cell--2-col">:</h6>
+                <div class="mdl-cell--5-col ">
+                    <input class="mdl-textfield__input" id="subnet_static_default"/>
+                </div>
+            </div>
+
+            <div class="mdl-cell--12-col mdl-grid"></div>
+            <div class="mdl-cell--12-col mdl-grid">
                 <div class="mdl-cell--4-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                <button id="interface_save_button"
+                        class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                 >Save
                 </button>
                 <div class="mdl-cell--1-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                >Configure
-                </button>
-            </div>
-            <div class="mdl-cell--12-col mdl-grid"></div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <h6 class="mdl-cell--5-col">Name of the Interface</h6>
-                <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col" id="interface_name">
-                    <div class=" " >
-                        <select id="route_int" style="width: 80px;" name="route_int">
-                            <option>enp7s0</option>
-                            <option>wlp6s0</option>
-                        </select>
-                    </div>
-                </h6>
-
-            </div>
-            <div class="mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell--4-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                >Add
-                </button>
-                <div class="mdl-cell--1-col"></div>
-                <button id="interface_save_button" class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                >Remove
+                <button id="interface_save_button"
+                        class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                >Delete
                 </button>
             </div>
 
         </div>
-    </div>
-    <div class="demo-graphs mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid--no-spacing ">
 
-
-        <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">HostAPD Configuration</h2>
-        <div style="padding:5px 10px" class="mdl-cell--12-col mdl-grid">
-
-
-            <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">Config file</h6>
-            <div class="mdl-cell--12-col mdl-grid" >
-                        <textarea id="hostapd_config" style="border:0px solid black;background:#2b2b2b;color:#fff;
-                        height:450px;width:100%;overflow-y: scroll;"
-                                  class="mdl-grid" spellcheck="false"></textarea>
+        <div class="mdl-card mdl-cell--6-col mdl-grid">
+            <div class="mdl-cell--12-col mdl-grid">
+                <h6 class="mdl-cell--6-col">List of Slave Interfaces</h6>
+                <h6 class="mdl-cell--2-col">:</h6>
+                <h6 class="mdl-cell--5-col" id="interface_name">
+                    <div class=" ">
+                        <select id="route_int" style="width: 80px;" name="route_int">
+                            <option>enp7s0</option>
+                            <option>wlp6s0</option>
+                        </select>
+                    </div>
+                </h6>
+            </div>
+            <div class="mdl-cell--12-col mdl-grid"></div>
+            <div class="mdl-cell--12-col mdl-typography--text-center">
+                <button id="interface_save_button"
+                        class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent "
+                >Remove
+                </button>
+            </div>
+            <div class="mdl-cell--12-col mdl-grid"></div>
+            <div class="mdl-cell--12-col mdl-grid">
+                <h6 class="mdl-cell--6-col">Independent Interfaces</h6>
+                <h6 class="mdl-cell--2-col">:</h6>
+                <h6 class="mdl-cell--5-col" id="interface_name">
+                    <div class=" ">
+                        <select id="route_int" style="width: 80px;" name="route_int">
+                            <option>enp7s0</option>
+                            <option>wlp6s0</option>
+                        </select>
+                    </div>
+                </h6>
 
             </div>
-
             <div class="mdl-cell--12-col mdl-grid"></div>
-            <div class="mdl-cell--12-col mdl-grid"></div>
-
-
+            <div class="mdl-cell--12-col mdl-typography--text-center">
+                <button id="interface_save_button"
+                        class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                >Add
+                </button>
+            </div>
         </div>
     </div>
 

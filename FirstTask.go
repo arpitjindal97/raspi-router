@@ -3,14 +3,15 @@ package main
 import (
 	"io/ioutil"
 	"encoding/json"
-	"os/exec"
 	"os"
 )
 
 type ConfigFile struct {
-	NetworkInterfaces []Interfaces
+	PhysicalInterfaces	[]PhysicalInterfaces
+	BridgeInterfaces	[]BridgeInterfaces
 }
-type Interfaces struct {
+
+type PhysicalInterfaces struct {
 	Name        	string
 	IsWifi     		string
 	Mode       		string
@@ -25,19 +26,27 @@ type Interfaces struct {
 	Info           	BasicInfo
 }
 
+type BridgeInterfaces struct {
+	Name			string
+	IpMode			string
+	IpAddress      	string
+	SubnetMask     	string
+	Info           	BasicInfo
+	Slaves			[]string
+}
+
 func FirstTask() ConfigFile {
-
-	out, _ := exec.Command("sh", "-c", "ip link | grep -v link | cut -f 2 -d ' '").Output()
-
-	interface_names := GetInterfaceName(out)
 
 	raw, err := ioutil.ReadFile("config/config.json")
 
 	var file ConfigFile
 
 	if err != nil {
+
+		// File not found
 		bb, _ := json.MarshalIndent(file, "", "	")
 
+		// make dir if not exists
 		_, err = ioutil.ReadDir("config")
 		if err != nil {
 			os.Mkdir("config", 0755)
@@ -49,50 +58,44 @@ func FirstTask() ConfigFile {
 
 	json.Unmarshal(raw, &file)
 
-	for i := 0; i < len(file.NetworkInterfaces); i++ {
 
-		name := file.NetworkInterfaces[i].Name
-		match := 0
-		for _, j := range interface_names {
 
-			if name == j {
-				match = 1
-			}
-		}
-		if match == 0 {
-			file.NetworkInterfaces = append(file.NetworkInterfaces[:i], file.NetworkInterfaces[i+1:]...)
-			i--
-		}
-	}
 
-	for i := 0; i < len(interface_names); i++ {
+	// Get interfaces excluding bridges
+	out := GetOutput(
+		"ip link | grep -v `ip link show type bridge |grep -v link| awk '{print $2}'` | grep -v link | awk '{print $2}'")
 
-		match := 0
-		for j := 0; j < len(file.NetworkInterfaces); j++ {
+	// Format them
+	interface_names := FormatInterfaceName(out)
 
-			if file.NetworkInterfaces[j].Name == interface_names[i] {
-				match = 1
-			}
-		}
-		if match == 0 {
-			file.NetworkInterfaces = append(file.NetworkInterfaces[:], CreateDefaultInterface(interface_names[i]))
-		}
+	file.PhysicalInterfaces = CorrectInterfaceMismatch(file.PhysicalInterfaces, interface_names)
 
-	}
+
+
+
+	// Get Bridge Interfaces
+	out = GetOutput("ip link show type bridge |grep -v link| awk '{print $2}'")
+
+	// Format them
+	interface_names = FormatInterfaceName(out)
+	file.BridgeInterfaces = CorrectBridgeMismatch(file.BridgeInterfaces,interface_names)
+
+
+
 
 	b, _ := json.MarshalIndent(file, "", "	")
 
-	ioutil.WriteFile("config/config.json", b, 0644)
+	ioutil.WriteFile("config/config.json", b, 0666)
 
-	//b,_ = json.MarshalIndent(file,"","	")
+	// get wpa, hostapd and dnsmasq files
 	file = CaptureConfFiles(file)
 
 	return file
 
 }
-func CreateDefaultInterface(name string) Interfaces {
+func CreateDefaultInterface(name string) PhysicalInterfaces {
 
-	var name_default Interfaces
+	var name_default PhysicalInterfaces
 	name_default.Name = name
 
 	str := GetOutput("iwconfig " + name)
@@ -112,9 +115,9 @@ func CreateDefaultInterface(name string) Interfaces {
 }
 func CaptureConfFiles(file ConfigFile) ConfigFile {
 
-	for i := 0; i < len(file.NetworkInterfaces); i++ {
+	for i := 0; i < len(file.PhysicalInterfaces); i++ {
 
-		name := file.NetworkInterfaces[i].Name
+		name := file.PhysicalInterfaces[i].Name
 
 		// Dnsmasq
 		raw, err := ioutil.ReadFile("config/" + name + "_dnsmasq.conf")
@@ -130,9 +133,9 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 			ioutil.WriteFile("config/"+name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
 		}
-		file.NetworkInterfaces[i].Dnsmasq = string(raw)
+		file.PhysicalInterfaces[i].Dnsmasq = string(raw)
 
-		if file.NetworkInterfaces[i].IsWifi == "false" {
+		if file.PhysicalInterfaces[i].IsWifi == "false" {
 			continue
 		}
 
@@ -160,7 +163,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 			ioutil.WriteFile("config/"+name+"_hostapd.conf", raw, os.FileMode(0644))
 
 		}
-		file.NetworkInterfaces[i].Hostapd = string(raw)
+		file.PhysicalInterfaces[i].Hostapd = string(raw)
 
 		// Wpa Supplicant
 		raw, err = ioutil.ReadFile("config/" + name + "_wpa.conf")
@@ -177,26 +180,26 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 			ioutil.WriteFile("config/"+name+"_wpa.conf", raw, os.FileMode(0644))
 
 		}
-		file.NetworkInterfaces[i].Wpa = string(raw)
+		file.PhysicalInterfaces[i].Wpa = string(raw)
 
 	}
 
 	return file
 }
 
-func GetInterfaceName(out []byte) []string {
+func FormatInterfaceName(out string) []string {
 
 	var interfaceNames []string
 	count := 0
 	interfaceNames = append(interfaceNames, "")
 
-	for i := 0; i < len(string(out)); i++ {
+	for i := 0; i < len(out)-1; i++ {
 
 		s := string(out[i])
 
 		if s == ":" && (out[i+1]) == 10 {
 			count++
-			if i+2 != len(string(out)) {
+			if i+2 != len(out) {
 				interfaceNames = append(interfaceNames, "")
 			}
 			i++
@@ -207,4 +210,79 @@ func GetInterfaceName(out []byte) []string {
 
 	}
 	return interfaceNames
+}
+
+func CorrectInterfaceMismatch( found []PhysicalInterfaces, actual []string) []PhysicalInterfaces {
+
+	//removing from found
+	for i := 0; i < len(found); i++ {
+
+		name := (found)[i].Name
+		match := 0
+		for _, j := range actual {
+
+			if name == j {
+				match = 1
+			}
+		}
+		if match == 0 {
+			found = append( found[:i], found[i+1:]...)
+			i--
+		}
+	}
+
+	//adding to found which exists in actual but not in the found
+	for i := 0; i < len(actual); i++ {
+
+		match := 0
+		for j := 0; j < len(found); j++ {
+
+			if found[j].Name == actual[i] {
+				match = 1
+			}
+		}
+		if match == 0 {
+			found = append(found[:], CreateDefaultInterface(actual[i]))
+		}
+
+	}
+
+	return found
+}
+
+func CorrectBridgeMismatch( found []BridgeInterfaces, actual []string) []BridgeInterfaces {
+
+
+	//adding to found which exists in actual but not in the found
+	for i := 0; i < len(actual); i++ {
+
+		match := 0
+		for j := 0; j < len(found); j++ {
+
+			if found[j].Name == actual[i] {
+				match = 1
+			}
+		}
+		if match == 0 {
+			found = append(found[:], GetCurrentInfoBridge(actual[i]))
+		}
+
+	}
+
+	return found
+}
+func GetCurrentInfoBridge(ifname string) BridgeInterfaces {
+
+	var new_ifname BridgeInterfaces
+	new_ifname.Name = ifname
+
+	str := GetOutput("ip link show master "+ifname+" | grep -v link | awk '{print $2}'")
+
+	new_ifname.Slaves = FormatInterfaceName(str)
+
+	new_ifname.IpMode = "dhcp"
+	new_ifname.IpAddress  = ""
+	new_ifname.SubnetMask = ""
+
+	return new_ifname
 }

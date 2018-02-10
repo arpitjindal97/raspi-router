@@ -13,7 +13,7 @@ function fill_status_page() {
 
     LoadHtmlDiv("content_div", "device_info.html")
 
-    $.getJSON(server_ip + '/device_info', function (data) {
+    $.getJSON(server_ip + '/DeviceInfo', function (data) {
 
         document.getElementById("distID").innerHTML = data["DistributionId"];
         document.getElementById("desc").innerHTML = data["Description"];
@@ -47,7 +47,7 @@ $(document).ready(function () {
 
     fill_status_page();
 
-    $.getJSON(server_ip + '/interfaces', function (data) {
+    $.getJSON(server_ip + '/PhysicalInterfaces', function (data) {
 
         document.getElementById("interface-list").innerHTML =
 
@@ -72,7 +72,7 @@ function interface_item_clicked(element) {
 
     LoadHtmlDiv("content_div", "interface.html");
 
-    $.getJSON(server_ip + '/interfaces', function (data) {
+    $.getJSON(server_ip + '/PhysicalInterfaces', function (data) {
 
         var i;
 
@@ -303,7 +303,7 @@ function sendData() {
         "IsWifi":"","Info":null
     };
 
-    $.post(server_ip+"/update_interface", JSON.stringify(json_obj));
+    $.post(server_ip+"/UpdateInterface", JSON.stringify(json_obj));
 }
 
 function LoadHtmlDiv(div_id, html_file) {
