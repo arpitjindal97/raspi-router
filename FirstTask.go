@@ -52,7 +52,7 @@ func FirstTask() ConfigFile {
 			os.Mkdir("config", 0755)
 		}
 
-		ioutil.WriteFile("config/config.json", bb, 0644)
+		ioutil.WriteFile("config/config.json", bb, 0666)
 		raw = bb
 	}
 
@@ -60,25 +60,29 @@ func FirstTask() ConfigFile {
 
 
 
-
-	// Get interfaces excluding bridges
-	out := GetOutput(
-		"ip link | grep -v `ip link show type bridge |grep -v link| awk '{print $2}'` | grep -v link | awk '{print $2}'")
+	// Get Bridge Interfaces
+	out := GetOutput("ip link show type bridge |grep -v link| awk '{print $2}'")
 
 	// Format them
 	interface_names := FormatInterfaceName(out)
-
-	file.PhysicalInterfaces = CorrectInterfaceMismatch(file.PhysicalInterfaces, interface_names)
-
+	//file.BridgeInterfaces = CorrectBridgeMismatch(file.BridgeInterfaces,interface_names)
 
 
 
-	// Get Bridge Interfaces
-	out = GetOutput("ip link show type bridge |grep -v link| awk '{print $2}'")
 
+	// Get interfaces excluding bridges
+	if out == "" {
+
+		out = GetOutput(
+			"ip link | grep -v link | awk '{print $2}'")
+	} else {
+		out = GetOutput(
+			"ip link | grep -v `ip link show type bridge |grep -v link| awk '{print $2}'` | grep -v link | awk '{print $2}'")
+	}
 	// Format them
 	interface_names = FormatInterfaceName(out)
-	file.BridgeInterfaces = CorrectBridgeMismatch(file.BridgeInterfaces,interface_names)
+
+	file.PhysicalInterfaces = CorrectInterfaceMismatch(file.PhysicalInterfaces, interface_names)
 
 
 
@@ -252,10 +256,10 @@ func CorrectInterfaceMismatch( found []PhysicalInterfaces, actual []string) []Ph
 
 func CorrectBridgeMismatch( found []BridgeInterfaces, actual []string) []BridgeInterfaces {
 
-
 	//adding to found which exists in actual but not in the found
 	for i := 0; i < len(actual); i++ {
 
+		if actual[i] == ""{continue}
 		match := 0
 		for j := 0; j < len(found); j++ {
 

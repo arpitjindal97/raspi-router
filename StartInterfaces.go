@@ -38,6 +38,7 @@ func StartTheInterfaces(file ConfigFile) {
 		log.Println("Starting up the interface " + file.PhysicalInterfaces[i].Name)
 
 		ExecuteWait("ip", "link", "set", file.PhysicalInterfaces[i].Name, "up")
+		ExecuteWait("ip", "link", "set", file.PhysicalInterfaces[i].Name, "nomaster")
 
 		StartParticularInterface(file.PhysicalInterfaces[i])
 	}

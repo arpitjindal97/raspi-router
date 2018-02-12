@@ -36,6 +36,8 @@ func main() {
 
 	StartTheInterfaces(File)
 
+	StartBridging()
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
 
