@@ -29,6 +29,8 @@ func main() {
 	http.HandleFunc("/api/PhysicalInterfaces",PhysicalInterface)
 	http.HandleFunc("/api/DeviceInfo",DeviceInfo)
 	http.HandleFunc("/api/UpdateInterface",UpdateInterface)
+	http.HandleFunc("/api/CreateBridge",CreateBridge)
+	http.HandleFunc("/api/DeleteBridge",DeleteBridge)
 	http.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)

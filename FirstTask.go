@@ -64,26 +64,34 @@ func FirstTask() ConfigFile {
 	out := GetOutput("ip link show type bridge |grep -v link| awk '{print $2}'")
 
 	// Format them
-	interface_names := FormatInterfaceName(out)
+	bridge_names := FormatInterfaceName(out)
 	//file.BridgeInterfaces = CorrectBridgeMismatch(file.BridgeInterfaces,interface_names)
 
 
 
 
 	// Get interfaces excluding bridges
-	if out == "" {
 
-		out = GetOutput(
-			"ip link | grep -v link | awk '{print $2}'")
-	} else {
-		out = GetOutput(
-			"ip link | grep -v `ip link show type bridge |grep -v link| awk '{print $2}'` | grep -v link | awk '{print $2}'")
-	}
+	out = GetOutput(
+		"ip link | grep -v link | awk '{print $2}'")
+
 	// Format them
-	interface_names = FormatInterfaceName(out)
+	interface_names := FormatInterfaceName(out)
+
+	for _,i := range bridge_names {
+		for j := 0;j<len(interface_names);j++ {
+			if i == interface_names[j] {
+				interface_names = append(interface_names[:j],interface_names[j+1:]...)
+			}
+		}
+	}
 
 	file.PhysicalInterfaces = CorrectInterfaceMismatch(file.PhysicalInterfaces, interface_names)
 
+	if file.BridgeInterfaces == nil {
+
+		file.BridgeInterfaces = []BridgeInterfaces{}
+	}
 
 
 

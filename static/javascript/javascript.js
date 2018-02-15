@@ -37,7 +37,30 @@ $('#bridge').click(function () {
 });
 
 function fill_bridge_page() {
-    LoadHtmlDiv("content_div", "bridge.html")
+    LoadHtmlDiv("content_div", "bridge.html");
+
+    $.getJSON(server_ip + '', function (data) {
+
+        list_bridge_interface = document.getElementById("list_bridge_interface");
+
+        for(var i=0;i< data["BridgeInterfaces"].length ;i++) {
+
+            var opt = document.createElement('option');
+            opt.value = data["BridgeInterfaces"][i]["Name"];
+            opt.innerHTML = opt.value;
+            list_bridge_interface.appendChild(opt)
+        }
+
+        document.getElementById("create_bridge").onclick = function () {
+            CreateBridge();
+        };
+
+        document.getElementById("bridge_del_buttom").onclick = function () {
+            DeleteBridge();
+        };
+
+
+    });
 }
 
 
@@ -319,4 +342,41 @@ function LoadHtmlDiv(div_id, html_file) {
     xhr.open("GET", html_file, true);
     xhr.setRequestHeader('Content-type', 'text/html');
     xhr.send();
+}
+
+
+function CreateBridge(){
+
+    var bridge_name = $("#create_bridge_name").val();
+
+    $.post(server_ip+"/CreateBridge", bridge_name, function (data,status){
+
+            progress(80);
+            console.log(data)
+            fill_bridge_page();
+            //progress(100);
+    });
+
+    progress(40);
+}
+
+function progress(percent){
+    document.querySelector('#p1').addEventListener('mdl-componentupgraded', function() {
+        this.MaterialProgress.setProgress(percent);
+    });
+}
+
+function DeleteBridge(){
+
+    var bridge_int = document.getElementById("list_bridge_interface")
+
+    var bridge_name = bridge_int.options[bridge_int.selectedIndex].text;
+    $.post(server_ip+"/DeleteBridge", bridge_name, function (data,status){
+
+        progress(80);
+        console.log(data)
+        fill_bridge_page();
+        //progress(100);
+    });
+
 }

@@ -7,12 +7,12 @@
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Name of the Bridge</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <input class="mdl-cell--5-col mdl-textfield__input" id="ip_addr_static_default"/>
+                <input class="mdl-cell--5-col mdl-textfield__input" id="create_bridge_name"/>
 
             </div>
             <div class="mdl-cell--12-col mdl-grid"></div>
             <div class="mdl-cell--12-col mdl-typography--text-center">
-                <button id="interface_save_button"
+                <button id="create_bridge"
                         class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                 >Create
                 </button>
@@ -23,10 +23,7 @@
                 <h6 class="mdl-cell--2-col">:</h6>
                 <h6 class="mdl-cell--5-col" id="interface_name">
                     <div class=" ">
-                        <select id="route_int" style="width: 80px;" name="route_int">
-                            <option>br0</option>
-                            <option>br1</option>
-                            <option>br2</option>
+                        <select id="list_bridge_interface" style="width: 80px;" name="list_bridge_interface">
                         </select>
                     </div>
                 </h6>
@@ -74,7 +71,7 @@
                 >Save
                 </button>
                 <div class="mdl-cell--1-col"></div>
-                <button id="interface_save_button"
+                <button id="bridge_del_buttom"
                         class=" mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
                 >Delete
                 </button>
