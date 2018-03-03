@@ -110,9 +110,8 @@ function interface_item_clicked(element) {
         };
         document.getElementById("mode_bridge").onclick = function () {
             document.getElementById("wifi_config_div").removeAttribute("style");
-            document.getElementById("dnsmasq_div").setAttribute("style", "display:none");
+            document.getElementById("ip_dns_outer").setAttribute("style", "display:none");
             document.getElementById("hostapd_div").removeAttribute("style");
-            document.getElementById("ip_mode_div").setAttribute("style", "display:none");
             document.getElementById("bridge_mode_wpa").removeAttribute("disabled");
             document.getElementById("bridge_mode_hostapd").removeAttribute("disabled");
             document.getElementById("nat_int").setAttribute("disabled", "");
@@ -123,9 +122,8 @@ function interface_item_clicked(element) {
         };
         document.getElementById("mode_off").onclick = function () {
             document.getElementById("wifi_config_div").setAttribute("style", "display:none");
-            document.getElementById("dnsmasq_div").setAttribute("style", "display:none");
+            document.getElementById("ip_dns_outer").setAttribute("style", "display:none");
             document.getElementById("hostapd_div").setAttribute("style", "display:none");
-            document.getElementById("ip_mode_div").setAttribute("style", "display:none");
             document.getElementById("bridge_mode_wpa").setAttribute("disabled", "");
             document.getElementById("bridge_mode_hostapd").setAttribute("disabled", "");
             document.getElementById("nat_int").setAttribute("disabled", "");
