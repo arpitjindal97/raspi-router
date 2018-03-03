@@ -30,8 +30,9 @@ func DeviceInfo(w http.ResponseWriter, r *http.Request) {
 		info.DistributionId = GetOutput("lsb_release -i | awk '{print $3}'")
 		info.Description = GetOutput("lsb_release -d | cut -f1 --complement'")
 		info.Release = GetOutput(" lsb_release -r | cut -f2")
-		info.Codename = GetOutput(" lsb_release -c | cut -f2")
 	}()
+
+	info.Codename = GetOutput(" lsb_release -c | cut -f2")
 
 	go func () {
 		info.Hostname = GetOutput("hostname")

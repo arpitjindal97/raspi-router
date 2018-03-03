@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"time"
 )
 
 func UpdateInterface(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +63,7 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 
 
 
-	StopInterface(File.PhysicalInterfaces[i])
+	/*StopInterface(File.PhysicalInterfaces[i])
 	time.Sleep(time.Second*2)
 	StartParticularInterface(rec_interface)
 
@@ -72,6 +71,6 @@ func UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	File = FirstTask()
 
 	str := "Operation Completed"
-	w.Write([]byte(str))
+	w.Write([]byte(str))*/
 
 }

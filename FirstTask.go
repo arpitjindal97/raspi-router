@@ -16,6 +16,7 @@ type PhysicalInterfaces struct {
 	IsWifi     		string
 	Mode       		string
 	BridgeMode		string
+	BridgeMaster	string
 	NatInterface	string
 	IpModes        	string
 	IpAddress      	string
@@ -120,6 +121,7 @@ func CreateDefaultInterface(name string) PhysicalInterfaces {
 
 	name_default.Mode = "default"
 	name_default.BridgeMode = "wpa"
+	name_default.BridgeMaster = ""
 	name_default.NatInterface = ""
 	name_default.IpModes = "dhcp"
 

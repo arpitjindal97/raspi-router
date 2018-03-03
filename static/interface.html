@@ -11,7 +11,7 @@
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">IP Address</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
-                <h6 class="mdl-cell--5-col" id="ip_addr"></h6>
+                <h6 class="mdl-cell--5-col" id="ip_addr_info"></h6>
             </div>
             <div class="mdl-cell--12-col mdl-grid">
                 <h6 class="mdl-cell--5-col">Broadcast Address</h6>
@@ -102,10 +102,14 @@
                 <h6 class="mdl-cell--4-col">NAT Interface</h6>
                 <h6 class="mdl-cell--2-col">:</h6>
                 <div class="mdl-cell--6-col ">
-                    <div class=" ">
-                        <select id="nat_int" name="nat_int">
-                        </select>
-                    </div>
+                    <select id="nat_int" name="nat_int">
+                    </select>
+                </div>
+            </div>
+            <div class="mdl-cell--12-col mdl-grid">
+                <h6 class="mdl-cell--4-col">Bridge Master</h6>
+                <h6 class="mdl-cell--2-col">:</h6>
+                <div class="mdl-cell--6-col" id="bridge_master">
                 </div>
             </div>
             <div class="mdl-cell--12-col mdl-grid"></div>
@@ -170,9 +174,10 @@
         </div>
 
     </div>
-    <div class="demo-cards mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-grid--no-spacing" id="ip_mode_default_div">
+    <div class="demo-cards mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-grid" >
+
         <div class="demo-graphs mdl-card mdl-shadow--2dp  mdl-grid mdl-cell--5-col
-                mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
+                mdl-cell--4-col-tablet mdl-cell--12-col-desktop" id="ip_mode_div">
 
             <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">IPv4 Config</h2>
 
@@ -183,14 +188,14 @@
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--7-col">
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_dhcp_default">
-                            <input type="radio" id="ip_mode_dhcp_default" class="mdl-radio__button" name="ip_mode_default" value="dhcp"
+                               for="ip_mode_dhcp">
+                            <input type="radio" id="ip_mode_dhcp" class="mdl-radio__button" name="ip_mode" value="dhcp"
                                    >
                             <span class="mdl-radio__label">DHCP</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_static_default">
-                            <input type="radio" id="ip_mode_static_default" class="mdl-radio__button" name="ip_mode_default" value="static">
+                               for="ip_mode_static">
+                            <input type="radio" id="ip_mode_static" class="mdl-radio__button" name="ip_mode" value="static">
                             <span class="mdl-radio__label">Static</span>
                         </label>
                     </div>
@@ -199,18 +204,35 @@
                     <h6 class="mdl-cell--4-col">IP Address</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input" id="ip_addr_static_default"/>
+                        <input class="mdl-textfield__input" id="ip_addr"/>
                     </div>
                 </div>
                 <div class="mdl-cell--12-col mdl-grid">
                     <h6 class="mdl-cell--4-col">Subnet Mask</h6>
                     <h6 class="mdl-cell--2-col">:</h6>
                     <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input" id="subnet_static_default"/>
+                        <input class="mdl-textfield__input" id="subnet"/>
                     </div>
                 </div>
             </div>
 
+        </div>
+
+        <div class="mdl-card mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--12-col mdl-grid" id="dnsmasq_div">
+
+            <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Dnsmasq Configuration</h2>
+            <div style="padding:5px 10px" class="mdl-cell--12-col mdl-grid">
+
+
+                <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">Config file</h6>
+                <div class="mdl-cell--12-col mdl-grid">
+                        <textarea id="dnsmasq_config" style="border:0px solid black;background:#2b2b2b;color:#fff;
+                        height:200px;width:100%;overflow-y: scroll;"
+                                  class="mdl-grid" spellcheck="false"></textarea>
+
+                </div>
+
+            </div>
         </div>
 
     </div>
@@ -237,66 +259,5 @@
         </div>
     </div>
 
-    <div class="demo-cards mdl-cell--6-col mdl-grid">
-        <div class="mdl-card mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--12-col mdl-grid" id="dnsmasq_div">
 
-            <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">Dnsmasq Configuration</h2>
-            <div style="padding:5px 10px" class="mdl-cell--12-col mdl-grid">
-
-
-                <h6 class="mdl-cell--12-col mdl-grid" style="padding:15px 0px">Config file</h6>
-                <div class="mdl-cell--12-col mdl-grid">
-                        <textarea id="dnsmasq_config" style="border:0px solid black;background:#2b2b2b;color:#fff;
-                        height:200px;width:100%;overflow-y: scroll;"
-                                  class="mdl-grid" spellcheck="false"></textarea>
-
-                </div>
-
-            </div>
-        </div>
-
-        <!--<div class="demo-separator mdl-cell--1-col"></div>-->
-        <div class="demo-options mdl-card  mdl-shadow--2dp mdl-cell
-                mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop" id="ip_mode_hotspot_div">
-
-            <h2 class="mdl-card__title-text mdl-cell--12-col" style="padding:10px">IPv4 Config</h2>
-
-            <div style="padding:20px 10px" class="mdl-cell--12-col mdl-grid">
-
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--4-col">Mode</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--7-col">
-                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_dhcp_hotspot">
-                            <input type="radio" id="ip_mode_dhcp_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="dhcp"
-                                   checked>
-                            <span class="mdl-radio__label">DHCP</span>
-                        </label>
-                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect mdl-cell--6-col"
-                               for="ip_mode_static_hotspot">
-                            <input type="radio" id="ip_mode_static_hotspot" class="mdl-radio__button" name="ip_mode_hotspot" value="static">
-                            <span class="mdl-radio__label">Static</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--4-col">IP Address</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input" id="ip_addr_static_hotspot"/>
-                    </div>
-                </div>
-                <div class="mdl-cell--12-col mdl-grid">
-                    <h6 class="mdl-cell--4-col">Subnet Mask</h6>
-                    <h6 class="mdl-cell--2-col">:</h6>
-                    <div class="mdl-cell--6-col ">
-                        <input class="mdl-textfield__input" id="subnet_static_hotspot"/>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
 </div>

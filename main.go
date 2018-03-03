@@ -26,24 +26,29 @@ func main() {
 
 	File = FirstTask()
 
+	http.HandleFunc("/api/PhysicalInterfaceStart",HandlePhysicalInterStart)
+	http.HandleFunc("/api/PhysicalInterfaceStop",HandlePhysicalInterStop)
+	http.HandleFunc("/api/PhysicalInterfaceSave",HandlePhysicalInterSave)
 	http.HandleFunc("/api/PhysicalInterfaces",PhysicalInterface)
 	http.HandleFunc("/api/DeviceInfo",DeviceInfo)
 	http.HandleFunc("/api/UpdateInterface",UpdateInterface)
 	http.HandleFunc("/api/CreateBridge",CreateBridge)
 	http.HandleFunc("/api/DeleteBridge",DeleteBridge)
+	http.HandleFunc("/api/BridgeRemoveSlave",BridgeRemoveSlave)
+	http.HandleFunc("/api/BridgeAddSlave",BridgeAddSlave)
 	http.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)
 	eth_thread = make(map[string] string)
 
-	StartTheInterfaces(File)
+	StartTheInterfaces()
 
-	StartBridging()
+	//StartBridging()
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
 
-	http.ListenAndServe(":8080",nil)
+	http.ListenAndServe(":5000",nil)
 
 }
 
@@ -53,6 +58,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
 		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+	}
+
+	for i:=0;i<len(File.BridgeInterfaces);i++ {
+		File.BridgeInterfaces[i].Info = GetCommonInterfaceInfo(File.BridgeInterfaces[i].Name)
 	}
 
 

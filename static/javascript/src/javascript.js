@@ -41,7 +41,7 @@ function fill_bridge_page() {
 
     $.getJSON(server_ip + '', function (data) {
 
-        list_bridge_interface = document.getElementById("list_bridge_interface");
+        var list_bridge_interface = document.getElementById("list_bridge_interface");
 
         for(var i=0;i< data["BridgeInterfaces"].length ;i++) {
 
@@ -58,6 +58,17 @@ function fill_bridge_page() {
         document.getElementById("bridge_del_buttom").onclick = function () {
             DeleteBridge();
         };
+        document.getElementById("bridge_independent_add").onclick = function () {
+            AddSlaveBridge();
+        };
+        document.getElementById("bridge_slave_remove").onclick = function () {
+            RemoveSlaveBridge();
+        };
+
+
+        list_bridge_interface.addEventListener("change", BridgeSelectionChange);
+
+        BridgeSelectionChange()
 
 
     });
@@ -271,6 +282,8 @@ function interface_item_clicked(element) {
             document.getElementById("bridge_mode_hostapd").setAttribute("checked", "")
         }
 
+        document.getElementById("bridge_master").innerHTML = data[i]["BridgeMaster"];
+
     });
 }
 
@@ -319,9 +332,11 @@ function sendData() {
          subnet_addr = $("#subnet_static_" + selectedMode).val();
     }
 
+    var bridge_master = $("#bridge_master").val();
+
     console.log(selectedMode)
     var json_obj={
-        "Name":name, "Mode":selectedMode,"BridgeMode":selectedBridgeMode,"NatInterface":nat_int,
+        "Name":name, "Mode":selectedMode,"BridgeMode":selectedBridgeMode,"BridgeMaster":bridge_master,"NatInterface":nat_int,
         "IpModes":ip_mode,"IpAddress":ip_addr,"SubnetMask":subnet_addr,"Wpa":wpa_config,"Hostapd":hostapd_config,"Dnsmasq":dnsmasq_config,
         "IsWifi":"","Info":null
     };
@@ -379,4 +394,91 @@ function DeleteBridge(){
         //progress(100);
     });
 
+}
+
+function BridgeSelectionChange() {
+
+    $.getJSON(server_ip + '', function (data) {
+
+        var list_bridge_interface = document.getElementById("list_bridge_interface");
+
+        var element = data["BridgeInterfaces"][list_bridge_interface.selectedIndex];
+
+        document.getElementById("ip_addr").innerHTML = element["Info"]["IpAddress"];
+        document.getElementById("broad_addr").innerHTML = element["Info"]["BroadcastAddress"];
+        document.getElementById("gate_addr").innerHTML = element["Info"]["Gateway"];
+        document.getElementById("mac_addr").innerHTML = element["Info"]["MacAddress"];
+        document.getElementById("rec_bytes").innerHTML = element["Info"]["RecvBytes"];
+        document.getElementById("rec_packs").innerHTML = element["Info"]["RecvPackts"];
+        document.getElementById("trans_bytes").innerHTML = element["Info"]["TransBytes"];
+        document.getElementById("trans_packs").innerHTML = element["Info"]["TransPackts"];
+
+        document.getElementById("bridge_"+element["IpMode"]).setAttribute("checked","");
+
+        document.getElementById("ip_addr_static").innerHTML = element["IpAddress"];
+        document.getElementById("subnet_static").innerHTML = element["SubnetMask"];
+
+        var slaves_int = document.getElementById("slaves_int");
+
+        for(var i=0;i< element["Slaves"].length ;i++) {
+
+            var opt = document.createElement('option');
+            opt.value = element["Slaves"][i];
+            opt.innerHTML = opt.value;
+            slaves_int.appendChild(opt)
+        }
+
+        element = document.getElementById("bridge_independent_int");
+
+        for(var i=0;i< data["PhysicalInterfaces"].length;i++) {
+
+            if (data["PhysicalInterfaces"][i]["Mode"] == "bridge" ) {
+
+                var opt = document.createElement('option');
+                opt.value = data["PhysicalInterfaces"][i]["Name"];
+                opt.innerHTML = opt.value;
+                element.appendChild(opt)
+            }
+
+        }
+
+    });
+}
+
+function AddSlaveBridge() {
+
+    var bridge_int = document.getElementById("list_bridge_interface");
+
+    var bridge_name = bridge_int.options[bridge_int.selectedIndex].text;
+
+
+    bridge_int = document.getElementById("bridge_independent_int");
+
+    var slave_name = bridge_int.options[bridge_int.selectedIndex].text;
+
+    var json = {"BridgeIfname":bridge_name,"SlaveIfname":slave_name};
+
+    $.post(server_ip+"/BridgeAddSlave", JSON.stringify(json), function (data,status){
+
+        progress(80);
+        console.log(data)
+        fill_bridge_page();
+        //progress(100);
+    });
+}
+
+function RemoveSlaveBridge() {
+
+    var bridge_int = document.getElementById("slaves_int");
+
+    var bridge_name = bridge_int.options[bridge_int.selectedIndex].text;
+
+
+    $.post(server_ip+"/BridgeRemoveSlave", bridge_name, function (data,status){
+
+        progress(80);
+        console.log(data)
+        fill_bridge_page();
+        //progress(100);
+    });
 }

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func StartTheInterfaces(file ConfigFile) {
+func StartTheInterfaces() {
 
 	Systemctl("stop", "wpa_supplicant")
 	//Systemctl("disable","wpa_supplicant")
@@ -33,23 +33,27 @@ func StartTheInterfaces(file ConfigFile) {
 
 	time.Sleep(time.Second * 2)
 
-	for i := 0; i < len(file.PhysicalInterfaces); i++ {
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
-		log.Println("Starting up the interface " + file.PhysicalInterfaces[i].Name)
+		log.Println("Starting up the interface " + File.PhysicalInterfaces[i].Name)
 
-		ExecuteWait("ip", "link", "set", file.PhysicalInterfaces[i].Name, "up")
-		ExecuteWait("ip", "link", "set", file.PhysicalInterfaces[i].Name, "nomaster")
+		ExecuteWait("ip", "link", "set", File.PhysicalInterfaces[i].Name, "up")
+		ExecuteWait("ip", "link", "set", File.PhysicalInterfaces[i].Name, "nomaster")
 
-		StartParticularInterface(file.PhysicalInterfaces[i])
+		PhysicalInterStart(File.PhysicalInterfaces[i])
+	}
+
+	for i:=0;i< len(File.BridgeInterfaces);i++ {
+
 	}
 
 }
 
-func StartParticularInterface(inter PhysicalInterfaces) {
+func PhysicalInterStart(inter PhysicalInterfaces) string {
 
 	if inter.Name == "lo" {
 		log.Println("Ignoring " + inter.Name)
-		return
+		return  ""
 	}
 
 	log.Println("Flushing the existing IP addr and Route of " + inter.Name)
@@ -57,15 +61,71 @@ func StartParticularInterface(inter PhysicalInterfaces) {
 	ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
 	ExecuteWait("ip", "route", "flush", "dev", inter.Name)
 
-	if inter.Mode == "off" {
-		return
-	}
-
 	if inter.IsWifi == "false" {
-		EthStart(inter)
-		return
+		return PhysicalInterStartEth(inter)
+	} else {
+		return PhysicalInterStartWlan(inter)
 	}
 
+}
+
+func PhysicalInterStartEth(inter PhysicalInterfaces) string {
+
+	eth_thread[inter.Name] = "start"
+
+	if inter.Mode == "default" {
+
+		if inter.IpModes == "dhcp" {
+
+			log.Println("Polling for Cable plugin on " + inter.Name)
+			go PhysicalInterDhcpEth(inter)
+
+		} else {
+			//static Ip address
+
+			log.Println("Static IP addr assigned to " + inter.Name)
+
+			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+		}
+	} else if inter.Mode == "hotspot" {
+		// Hotspot
+
+		//static IP
+		log.Println("Static IP addr assigned to " + inter.Name)
+
+		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+
+		//dnsmasq
+		log.Println("Dnsmasq started on " + inter.Name)
+		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", path+"config/"+inter.Name+"_dnsmasq.conf")
+
+		//handle routing
+		log.Println("Configuring IP Tables for " + inter.Name)
+		IptablesCreate(inter)
+	} else if inter.Mode == "bridge" {
+
+		// Nothing to do
+	} else {
+		ExecuteWait("ip", "link", "set", inter.Name, "down")
+	}
+
+	return inter.Name+" started"
+}
+func PhysicalInterDhcpEth(inter PhysicalInterfaces) {
+
+	for eth_thread[inter.Name] == "start" {
+
+		carrier := GetOutput("cat /sys/class/net/" + inter.Name + "/carrier")
+		if carrier == "1" {
+			log.Println("Cable Plugged in on interface " + inter.Name)
+			go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", inter.Name)
+			return
+		}
+		time.Sleep(time.Second * 5)
+	}
+}
+
+func PhysicalInterStartWlan(inter PhysicalInterfaces) string {
 	//Wifi Interface
 	dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
 
@@ -111,101 +171,54 @@ func StartParticularInterface(inter PhysicalInterfaces) {
 			exec.Command("hostapd", path+"config/"+inter.Name+"_hostapd.conf").Start()
 		}
 
+	} else {
+
+		ExecuteWait("ip", "link", "set", inter.Name, "down")
+
 	}
+	return inter.Name+" started"
 }
+func PhysicalInterStop(inter PhysicalInterfaces) string {
 
-func EthStart(inter PhysicalInterfaces) {
+	if inter.IsWifi == "true" {
 
-	eth_thread[inter.Name] = "start"
+		if inter.Mode == "hotspot" {
 
-	if inter.Mode == "default" {
-
-		if inter.IpModes == "dhcp" {
-
-			log.Println("Polling for Cable plugin on " + inter.Name)
-			go EthDhcp(inter)
-
-		} else {
-			//static Ip address
-
-			log.Println("Static IP addr assigned to " + inter.Name)
-
-			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-		}
-	} else if inter.Mode == "hotspot" {
-		// Hotspot
-
-		//static IP
-		log.Println("Static IP addr assigned to " + inter.Name)
-
-		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-
-		//dnsmasq
-		log.Println("Dnsmasq started on " + inter.Name)
-		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", path+"config/"+inter.Name+"_dnsmasq.conf")
-
-		//handle routing
-		log.Println("Configuring IP Tables for " + inter.Name)
-		IptablesCreate(inter)
-
-	} else if inter.Mode == "bridge" {
-		// Nothing to do
-	}
-}
-func EthDhcp(inter PhysicalInterfaces) {
-
-	for eth_thread[inter.Name] == "start" {
-
-		carrier := GetOutput("cat /sys/class/net/" + inter.Name + "/carrier")
-		if carrier == "1" {
-			log.Println("Cable Plugged in on interface " + inter.Name)
-			go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", inter.Name)
-			return
-		}
-		time.Sleep(time.Second * 5)
-	}
-}
-func StopInterface(rec_interface PhysicalInterfaces) {
-
-	if rec_interface.IsWifi == "true" {
-
-		//if there is any change in wpa, hostapd,dnsmasq then restart
-		if rec_interface.Mode == "hotspot" {
-
-			log.Println("Killing Hostapd and Dnsmasq of " + rec_interface.Name)
-			Kill("hostapd.*" + rec_interface.Name)
-			Kill("dnsmasq.*" + rec_interface.Name)
+			log.Println("Killing Hostapd and Dnsmasq of " + inter.Name)
+			Kill("hostapd.*" + inter.Name)
+			Kill("dnsmasq.*" + inter.Name)
 
 			//clear old rules
-			log.Println("Clearing IP table rules of " + rec_interface.Name)
-			IptablesClear(rec_interface)
+			log.Println("Clearing IP table rules of " + inter.Name)
+			IptablesClear(inter)
 
-		} else if rec_interface.Mode == "default" {
-			DBusRemoveInterface(rec_interface.Name)
+		} else if inter.Mode == "default" {
+			DBusRemoveInterface(inter.Name)
 
-		} else if rec_interface.Mode == "bridge" {
-			if rec_interface.BridgeMode == "wpa" {
+		} else if inter.Mode == "bridge" {
+			if inter.BridgeMode == "wpa" {
 
-				DBusRemoveInterface(rec_interface.Name)
+				DBusRemoveInterface(inter.Name)
 
-			} else if rec_interface.BridgeMode == "hostapd" {
+			} else if inter.BridgeMode == "hostapd" {
 
-				log.Println("Kiling Hostapd of " + rec_interface.Name)
-				Kill("hostapd.*" + rec_interface.Name)
+				log.Println("Kiling Hostapd of " + inter.Name)
+				Kill("hostapd.*" + inter.Name)
 			}
 		}
 
 	} else {
-		Kill("dhcpcd.*" + rec_interface.Name)
-		if rec_interface.Mode == "hotspot" {
+		Kill("dhcpcd.*" + inter.Name)
+		if inter.Mode == "hotspot" {
 
-			log.Println("Kiling Dnsmasq of " + rec_interface.Name)
-			Kill("dnsmasq.*" + rec_interface.Name)
+			log.Println("Kiling Dnsmasq of " + inter.Name)
+			Kill("dnsmasq.*" + inter.Name)
 
 			//clear old rules
-			log.Println("Clearing IP table rules of " + rec_interface.Name)
-			IptablesClear(rec_interface)
+			log.Println("Clearing IP table rules of " + inter.Name)
+			IptablesClear(inter)
 
 		}
 	}
+	return inter.Name+" stopped"
 }
