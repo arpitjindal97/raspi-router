@@ -2,212 +2,154 @@ package main
 
 import (
 	"strings"
-	"net/http"
 	"io/ioutil"
 	"encoding/json"
-	"bytes"
 )
 
-func StartBridging() {
+func BridgeInterStart(inter BridgeInterfaces) string {
 
-	for _, i := range File.BridgeInterfaces {
-
-		read_closer := ioutil.NopCloser(bytes.NewBuffer([]byte(i.Name)))
-
-		body := http.Request{Body: read_closer}
-
-		CreateBridge(nil, &body)
-
-		for _, j := range i.Slaves {
-
-			GetOutput("ip link set " + j + " master " + i.Name)
+	if inter.IpMode == "dhcp" {
+		if len(inter.Slaves) == 0 {
+			return "dhcpcd not started, no slave attached"
 		}
 
-		if i.IpMode == "dhcp" {
+		go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", inter.Name)
+		return "dhcpcd started"
+	} else {
 
-			go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", i.Name)
-		} else {
-
-			ExecuteWait("ifconfig", i.Name, i.IpAddress, "netmask", i.SubnetMask)
-		}
+		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+		return "Assigned static Ip address"
 	}
+
 }
 
-func CreateBridge(w http.ResponseWriter, r *http.Request) {
+func BridgeInterCreate(inter BridgeInterfaces) string {
 
-	body, _ := ioutil.ReadAll(r.Body)
-
-	str := string(body)
-
-	out := GetOutput("ip link ls " + str)
+	out := GetOutput("ip link ls " + inter.Name)
 
 	if strings.Contains(out, "does not exist") == false {
-		GetOutput("ip link add name " + str + " type bridge")
+		GetOutput("ip link add name " + inter.Name + " type bridge")
 	}
 
-	GetOutput("ip link set dev " + str + " up")
+	GetOutput("ip link set dev " + inter.Name + " up")
 
-	out = GetOutput("ip link ls " + str + " | grep UP")
-
-	go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", str)
-
-	if w == nil {
-		return
-	}
+	out = GetOutput("ip link ls " + inter.Name + " | grep UP")
 
 	if strings.Contains(out, "does not exists") == true {
 
-		w.Write([]byte("Error encountered while creating " + str))
+		return "Error encountered while creating " + inter.Name
 
-		return
 	}
 
-	raw, _ := ioutil.ReadFile("config/config.json")
-	var file ConfigFile
-	json.Unmarshal(raw, &file)
-	var new_bridge BridgeInterfaces
-	new_bridge.Name = str
-	new_bridge.IpMode = "dhcp"
-	new_bridge.Slaves = []string{}
-	file.BridgeInterfaces = append(file.BridgeInterfaces[:], new_bridge)
-	b, _ := json.MarshalIndent(file, "", "	")
-	ioutil.WriteFile("config/config.json", b, 0644)
-
-	File.BridgeInterfaces = file.BridgeInterfaces
-
-
-	w.Write([]byte(str + " created and up"))
+	return inter.Name + " created and up"
 
 }
 
-func DeleteBridge(w http.ResponseWriter, r *http.Request) {
+func BridgeInterDelete(inter BridgeInterfaces) string {
 
-	body, _ := ioutil.ReadAll(r.Body)
-
-	str := string(body)
-
-	out := GetOutput("ip link ls " + str)
+	out := GetOutput("ip link ls " + inter.Name)
 
 	if strings.Contains(out, "does not exist") == true {
-		w.Write([]byte("Error encountered while deleting " + str))
-		return
+		return "Bridge Interface " + inter.Name + " doesn't exists"
+
 	}
 
-	GetOutput("ip link del " + str)
+	GetOutput("ip link del " + inter.Name)
+
+	out = GetOutput("ip link ls " + inter.Name)
+	if strings.Contains(out, "does not exist") == true {
+		return inter.Name + " successfully deleted"
+	} else {
+		return "Error deleting " + inter.Name
+	}
+
+	return inter.Name + " deleted"
+}
+
+func BridgeInterRemoveSlave(slave_inter string) string {
+
+	GetOutput("ip link set " + slave_inter + " nomaster")
+
+	return slave_inter + " removed"
+
+}
+
+func BridgeInterAddSlave(bridge_inter string, slave_inter string) string {
+
+	GetOutput("ip link set " + slave_inter + " master " + bridge_inter)
+
+	return slave_inter + " added to " + bridge_inter
+
+}
+func BridgeInterSave(inter BridgeInterfaces, action string) string {
 
 	raw, _ := ioutil.ReadFile("config/config.json")
 	var file ConfigFile
 	json.Unmarshal(raw, &file)
 
-	for i := 0; i < len(file.BridgeInterfaces); i++ {
+	if action == "add" {
 
-		if file.BridgeInterfaces[i].Name == str {
+		var new_bridge BridgeInterfaces
+		new_bridge.Name = inter.Name
+		new_bridge.IpMode = "dhcp"
+		new_bridge.Slaves = []string{}
+		file.BridgeInterfaces = append(file.BridgeInterfaces[:], new_bridge)
 
-			file.BridgeInterfaces = append(file.BridgeInterfaces[:i], file.BridgeInterfaces[i+1:]...)
-			break
+	} else if action == "delete" {
+
+		for i := 0; i < len(file.BridgeInterfaces); i++ {
+
+			if file.BridgeInterfaces[i].Name == inter.Name {
+
+				file.BridgeInterfaces = append(file.BridgeInterfaces[:i], file.BridgeInterfaces[i+1:]...)
+				break
+			}
 		}
-	}
 
-	for i:=0;i<len(file.PhysicalInterfaces);i++ {
-		if file.PhysicalInterfaces[i].BridgeMaster == str {
-			file.PhysicalInterfaces[i].BridgeMaster = ""
-			File.PhysicalInterfaces[i].BridgeMaster = ""
-			break
+		for i := 0; i < len(file.PhysicalInterfaces); i++ {
+			if file.PhysicalInterfaces[i].BridgeMaster == inter.Name {
+				file.PhysicalInterfaces[i].BridgeMaster = ""
+				File.PhysicalInterfaces[i].BridgeMaster = ""
+				break
+			}
 		}
+
+	} else if action == "update" {
+		for i := 0; i < len(file.BridgeInterfaces); i++ {
+
+			if file.BridgeInterfaces[i].Name == inter.Name {
+
+				file.BridgeInterfaces[i] = inter
+				break
+			}
+		}
+
+	} else
+	{
 	}
 
 	b, _ := json.MarshalIndent(file, "", "	")
-
 	ioutil.WriteFile("config/config.json", b, 0644)
 
 	File.BridgeInterfaces = file.BridgeInterfaces
 
-	w.Write([]byte(str + " deleted"))
+	return "Configuration saved"
 }
 
-func BridgeRemoveSlave(w http.ResponseWriter, r *http.Request) {
+func BridgeInterStop(inter BridgeInterfaces) string {
 
-	body, _ := ioutil.ReadAll(r.Body)
-
-	str := string(body)
-
-	GetOutput("ip link set " + str + " nomaster")
-
-	raw, _ := ioutil.ReadFile("config/config.json")
-	var file ConfigFile
-	json.Unmarshal(raw, &file)
-
-	for i := 0; i < len(file.BridgeInterfaces); i++ {
-
-		for j := 0; j < len(file.BridgeInterfaces[i].Slaves); j++ {
-
-			if file.BridgeInterfaces[i].Slaves[j] == str {
-				file.BridgeInterfaces[i].Slaves =
-					append(file.BridgeInterfaces[i].Slaves[:j], file.BridgeInterfaces[i].Slaves[j+1:]...)
-				j--
-			}
+	if inter.IpMode == "dhcp" {
+		if len(inter.Slaves) == 0 {
+			return "dhcpcd not active"
 		}
+
+		Kill("dhcpcd.*" + inter.Name)
+
+		return "dhcpcd killed"
+	} else {
+
+		ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
+		return "Flushed static Ip addr"
 	}
-
-	for i := 0; i < len(file.PhysicalInterfaces); i++ {
-		if file.PhysicalInterfaces[i].Name == str {
-			file.PhysicalInterfaces[i].BridgeMaster = ""
-			File.PhysicalInterfaces[i].BridgeMaster = ""
-			break
-		}
-	}
-
-	b, _ := json.MarshalIndent(file, "", "	")
-
-	ioutil.WriteFile("config/config.json", b, 0666)
-
-	File.BridgeInterfaces = file.BridgeInterfaces
-
-	w.Write([]byte(str + " removed"))
-
-}
-
-func BridgeAddSlave(w http.ResponseWriter, r *http.Request) {
-	type BridgeAdd struct {
-		BridgeIfname string
-		SlaveIfname  string
-	}
-
-	var bridge BridgeAdd
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&bridge)
-	if err != nil {
-		panic(err)
-	}
-
-	GetOutput("ip link set " + bridge.SlaveIfname + " master " + bridge.BridgeIfname)
-
-	raw, _ := ioutil.ReadFile("config/config.json")
-	var file ConfigFile
-	json.Unmarshal(raw, &file)
-
-	for i := 0; i < len(file.BridgeInterfaces); i++ {
-		if file.BridgeInterfaces[i].Name == bridge.BridgeIfname {
-			file.BridgeInterfaces[i].Slaves = append(file.BridgeInterfaces[i].Slaves, bridge.SlaveIfname)
-			break
-		}
-	}
-
-	for i := 0; i < len(file.PhysicalInterfaces); i++ {
-		if file.PhysicalInterfaces[i].Name == bridge.SlaveIfname {
-			file.PhysicalInterfaces[i].BridgeMaster = bridge.BridgeIfname
-			File.PhysicalInterfaces[i].BridgeMaster = bridge.BridgeIfname
-			break
-		}
-	}
-
-	b, _ := json.MarshalIndent(file, "", "	")
-
-	ioutil.WriteFile("config/config.json", b, 0666)
-
-	File.BridgeInterfaces = file.BridgeInterfaces
-
-	w.Write([]byte(bridge.SlaveIfname + " added to " + bridge.BridgeIfname))
 
 }

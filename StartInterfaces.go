@@ -45,6 +45,15 @@ func StartTheInterfaces() {
 
 	for i:=0;i< len(File.BridgeInterfaces);i++ {
 
+		BridgeInterCreate(File.BridgeInterfaces[i])
+
+		for _,slave := range File.BridgeInterfaces[i].Slaves {
+
+			BridgeInterAddSlave(File.BridgeInterfaces[i].Name,slave)
+		}
+
+		BridgeInterStart(File.BridgeInterfaces[i])
+
 	}
 
 }
@@ -222,3 +231,4 @@ func PhysicalInterStop(inter PhysicalInterfaces) string {
 	}
 	return inter.Name+" stopped"
 }
+

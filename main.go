@@ -29,13 +29,18 @@ func main() {
 	http.HandleFunc("/api/PhysicalInterfaceStart",HandlePhysicalInterStart)
 	http.HandleFunc("/api/PhysicalInterfaceStop",HandlePhysicalInterStop)
 	http.HandleFunc("/api/PhysicalInterfaceSave",HandlePhysicalInterSave)
+
 	http.HandleFunc("/api/PhysicalInterfaces",PhysicalInterface)
 	http.HandleFunc("/api/DeviceInfo",DeviceInfo)
-	http.HandleFunc("/api/UpdateInterface",UpdateInterface)
-	http.HandleFunc("/api/CreateBridge",CreateBridge)
-	http.HandleFunc("/api/DeleteBridge",DeleteBridge)
-	http.HandleFunc("/api/BridgeRemoveSlave",BridgeRemoveSlave)
-	http.HandleFunc("/api/BridgeAddSlave",BridgeAddSlave)
+
+	http.HandleFunc("/api/BridgeInterDelete",Handle_BridgeInterDelete)
+	http.HandleFunc("/api/BridgeInterCreate",Handle_BridgeInterCreate)
+	http.HandleFunc("/api/BridgeInterSave",Handle_BridgeInterSave)
+	http.HandleFunc("/api/BridgeInterStart",Handle_BridgeInterStart)
+	http.HandleFunc("/api/BridgeInterStop",Handle_BridgeInterStop)
+	http.HandleFunc("/api/BridgeInterRemoveSlave",Handle_BridgeInterRemoveSlave)
+	http.HandleFunc("/api/BridgeInterAddSlave",Handle_BridgeInterAddSlave)
+
 	http.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)

@@ -86,3 +86,125 @@ func HandlePhysicalInterSave (w http.ResponseWriter,r *http.Request) {
 
 	w.Write([]byte("Configuration saved"))
 }
+
+
+
+//Handlers for Bridge Interfaces
+
+type BridgeSlave struct {
+	BridgeIfname string
+	SlaveIfname  string
+}
+
+func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
+
+	var inter BridgeInterfaces
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterDelete(inter)
+
+	w.Write([]byte(response))
+
+}
+
+
+func Handle_BridgeInterCreate(w http.ResponseWriter,r *http.Request) {
+	var inter BridgeInterfaces
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterCreate(inter)
+
+	w.Write([]byte(response))
+}
+
+func Handle_BridgeInterSave(w http.ResponseWriter,r *http.Request) {
+
+	type BridgeSaveActions struct{
+		BridgeInter BridgeInterfaces
+		Action		string
+	}
+	var resp BridgeSaveActions
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&resp)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterSave(resp.BridgeInter,resp.Action)
+
+	w.Write([]byte(response))
+}
+
+func Handle_BridgeInterStart(w http.ResponseWriter,r *http.Request) {
+	var inter BridgeInterfaces
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterStart(inter)
+
+	w.Write([]byte(response))
+}
+
+
+func Handle_BridgeInterStop(w http.ResponseWriter,r *http.Request) {
+	var inter BridgeInterfaces
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterStop(inter)
+
+	w.Write([]byte(response))
+}
+func Handle_BridgeInterRemoveSlave(w http.ResponseWriter,r *http.Request) {
+
+	var inter_name string
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter_name)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterRemoveSlave(inter_name)
+
+	w.Write([]byte(response))
+}
+func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
+	var inter BridgeSlave
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&inter)
+	if err != nil {
+		panic(err)
+	}
+
+	response := BridgeInterAddSlave(inter.BridgeIfname,inter.SlaveIfname)
+
+	w.Write([]byte(response))
+}
