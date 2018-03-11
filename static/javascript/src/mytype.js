@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+//css modules
+require("./styles.css");
 const $ = require("jquery");
 require("bootstrap/dist/js/bootstrap.js");
 require("material-design-lite");
@@ -34,11 +36,13 @@ function fill_status_page() {
         document.getElementById("up_since").innerHTML = data["UpSince"];
     });
 }
-let status_but = document.getElementById("status");
-$('#status').click(fill_status_page);
-status_but.click();
-document.getElementById("interface-toggle").onclick = function () {
-    $("#interface-list").collapse('toggle');
+window.onload = function () {
+    let status_but = document.getElementById("status");
+    $('#status').click(fill_status_page);
+    status_but.click();
+    document.getElementById("interface-toggle").onclick = function () {
+        $("#interface-list").collapse('toggle');
+    };
 };
 let current_inter;
 function interface_item_clicked(element) {

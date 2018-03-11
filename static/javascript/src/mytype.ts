@@ -1,3 +1,9 @@
+
+//css modules
+import './styles.css'
+
+
+
 import * as $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
 import 'material-design-lite'
@@ -42,16 +48,18 @@ function fill_status_page() {
     });
 }
 
+window.onload = function(){
 
-let status_but = document.getElementById("status");
+    let status_but = document.getElementById("status");
 
-$('#status').click(fill_status_page);
+    $('#status').click(fill_status_page);
 
-status_but.click()
+    status_but.click()
 
-document.getElementById("interface-toggle").onclick = function () {
-    $("#interface-list").collapse('toggle')
-};
+    document.getElementById("interface-toggle").onclick = function () {
+        $("#interface-list").collapse('toggle')
+    };
+}
 
 let current_inter: PhysicalInterface;
 

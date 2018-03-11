@@ -7,6 +7,9 @@ import (
 	"github.com/godbus/dbus"
 	"os"
 	"fmt"
+	"github.com/gorilla/mux"
+	"time"
+	"log"
 )
 
 
@@ -25,23 +28,26 @@ func main() {
 	SetPath()
 
 	File = FirstTask()
+	muxHttp := mux.NewRouter()
 
-	http.HandleFunc("/api/PhysicalInterfaceStart",HandlePhysicalInterStart)
-	http.HandleFunc("/api/PhysicalInterfaceStop",HandlePhysicalInterStop)
-	http.HandleFunc("/api/PhysicalInterfaceSave",HandlePhysicalInterSave)
+	muxHttp.HandleFunc("/api/PhysicalInterfaceStart",HandlePhysicalInterStart)
+	muxHttp.HandleFunc("/api/PhysicalInterfaceStop",HandlePhysicalInterStop)
+	muxHttp.HandleFunc("/api/PhysicalInterfaceSave",HandlePhysicalInterSave)
 
-	http.HandleFunc("/api/PhysicalInterfaces",PhysicalInterface)
-	http.HandleFunc("/api/DeviceInfo",DeviceInfo)
+	muxHttp.HandleFunc("/api/PhysicalInterfaces",Handle_PhysicalInterface)
+	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}",Handle_PhysicalInterfaceName)
 
-	http.HandleFunc("/api/BridgeInterDelete",Handle_BridgeInterDelete)
-	http.HandleFunc("/api/BridgeInterCreate",Handle_BridgeInterCreate)
-	http.HandleFunc("/api/BridgeInterSave",Handle_BridgeInterSave)
-	http.HandleFunc("/api/BridgeInterStart",Handle_BridgeInterStart)
-	http.HandleFunc("/api/BridgeInterStop",Handle_BridgeInterStop)
-	http.HandleFunc("/api/BridgeInterRemoveSlave",Handle_BridgeInterRemoveSlave)
-	http.HandleFunc("/api/BridgeInterAddSlave",Handle_BridgeInterAddSlave)
+	muxHttp.HandleFunc("/api/OSInfo",Handle_DeviceInfo)
 
-	http.HandleFunc("/api",Index)
+	muxHttp.HandleFunc("/api/BridgeInterDelete",Handle_BridgeInterDelete)
+	muxHttp.HandleFunc("/api/BridgeInterCreate",Handle_BridgeInterCreate)
+	muxHttp.HandleFunc("/api/BridgeInterSave",Handle_BridgeInterSave)
+	muxHttp.HandleFunc("/api/BridgeInterStart",Handle_BridgeInterStart)
+	muxHttp.HandleFunc("/api/BridgeInterStop",Handle_BridgeInterStop)
+	muxHttp.HandleFunc("/api/BridgeInterRemoveSlave",Handle_BridgeInterRemoveSlave)
+	muxHttp.HandleFunc("/api/BridgeInterAddSlave",Handle_BridgeInterAddSlave)
+
+	muxHttp.HandleFunc("/api",Index)
 
 	dbus_objects = make(map[string] chan *dbus.Signal)
 	eth_thread = make(map[string] string)
@@ -50,15 +56,25 @@ func main() {
 
 	//StartBridging()
 
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/", fs)
 
-	http.ListenAndServe(":5000",nil)
+	muxHttp.PathPrefix("").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/static/"))))
+
+	srv := &http.Server{
+		Handler:      muxHttp,
+		Addr:         "127.0.0.1:5000",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 
 }
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
+
+	go func(){File.OSInfo = GetDeviceInfo()}()
 
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 

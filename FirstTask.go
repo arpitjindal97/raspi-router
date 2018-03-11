@@ -7,6 +7,7 @@ import (
 )
 
 type ConfigFile struct {
+	OSInfo				OSInfo
 	PhysicalInterfaces	[]PhysicalInterfaces
 	BridgeInterfaces	[]BridgeInterfaces
 }

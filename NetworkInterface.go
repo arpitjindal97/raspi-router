@@ -23,7 +23,7 @@ type BasicInfo struct {
 	Channel      string
 }
 
-func PhysicalInterface(w http.ResponseWriter, r *http.Request) {
+func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 

@@ -31,6 +31,7 @@ func DBusCreateInterface(ifname string, driver string, config string, inter Phys
 
 	if err != nil {
 		fmt.Println(config)
+		log.Println("Looks like there is some problem with wpa_supplicant, Is it installed?")
 		panic(err)
 	}
 
@@ -58,7 +59,8 @@ func DBusRemoveInterface(ifname string) {
 
 	err := obj.Call("fi.w1.wpa_supplicant1.GetInterface", 0, ifname).Store(&intfPath)
 	if err != nil {
-		panic(err)
+		log.Println("No interface found with this name")
+		return
 	}
 
 	log.Println(ifname+" Object path : "+string(intfPath))

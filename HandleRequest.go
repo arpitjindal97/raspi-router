@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"github.com/gorilla/mux"
 )
 
 func HandlePhysicalInterStart(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +65,9 @@ func HandlePhysicalInterSave (w http.ResponseWriter,r *http.Request) {
 	(*orig).Hostapd = ""
 	(*orig).Wpa = ""
 	(*orig).Dnsmasq = ""
+	(*orig).Info = BasicInfo{}
+
+	File.OSInfo = OSInfo{}
 
 	b, _ := json.MarshalIndent(File, "", "	")
 
@@ -207,4 +211,19 @@ func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
 	response := BridgeInterAddSlave(inter.BridgeIfname,inter.SlaveIfname)
 
 	w.Write([]byte(response))
+}
+
+func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
+	vars := mux.Vars(r)["inter_name"]
+
+	for _,item := range File.PhysicalInterfaces {
+
+		if item.Name == vars{
+			b, _ := json.MarshalIndent(item, "", "	")
+			w.Write([]byte(b))
+			return
+		}
+	}
+
+
 }

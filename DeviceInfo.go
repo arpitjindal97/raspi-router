@@ -22,8 +22,20 @@ type OSInfo struct{
 	UpSince			string
 }
 
-func DeviceInfo(w http.ResponseWriter, r *http.Request) {
+func Handle_DeviceInfo(w http.ResponseWriter, r *http.Request) {
 
+	File.OSInfo = GetDeviceInfo()
+
+	b,_ := json.MarshalIndent(File.OSInfo,"","	")
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Write(b)
+
+}
+
+func GetDeviceInfo() OSInfo{
 	var info OSInfo
 
 	go func () {
@@ -50,13 +62,5 @@ func DeviceInfo(w http.ResponseWriter, r *http.Request) {
 
 	info.UpTime = GetOutput("uptime -p")
 	info.UpSince = GetOutput("uptime -s")
-
-	b,_ := json.MarshalIndent(info,"","	")
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	w.Write(b)
-
+	return info
 }
-
