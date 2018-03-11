@@ -88,8 +88,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	b,_ := json.MarshalIndent(File,"","	")
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	SetHeader(&w)
 
 	w.Write(b)
 }
@@ -151,4 +151,10 @@ func SetPath() {
 	}
 	path=pwd+"/"
 
+}
+
+func SetHeader(w *http.ResponseWriter){
+
+	(*w).Header().Set("Content-Type", "application/json")
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

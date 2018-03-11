@@ -6,37 +6,6 @@ import (
 	"os"
 )
 
-type ConfigFile struct {
-	OSInfo				OSInfo
-	PhysicalInterfaces	[]PhysicalInterfaces
-	BridgeInterfaces	[]BridgeInterfaces
-}
-
-type PhysicalInterfaces struct {
-	Name        	string
-	IsWifi     		string
-	Mode       		string
-	BridgeMode		string
-	BridgeMaster	string
-	NatInterface	string
-	IpModes        	string
-	IpAddress      	string
-	SubnetMask     	string
-	Wpa            	string
-	Hostapd        	string
-	Dnsmasq        	string
-	Info           	BasicInfo
-}
-
-type BridgeInterfaces struct {
-	Name			string
-	IpMode			string
-	IpAddress      	string
-	SubnetMask     	string
-	Info           	BasicInfo
-	Slaves			[]string
-}
-
 func FirstTask() ConfigFile {
 
 	raw, err := ioutil.ReadFile("config/config.json")

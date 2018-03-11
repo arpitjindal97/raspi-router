@@ -92,14 +92,6 @@ func HandlePhysicalInterSave (w http.ResponseWriter,r *http.Request) {
 }
 
 
-
-//Handlers for Bridge Interfaces
-
-type BridgeSlave struct {
-	BridgeIfname string
-	SlaveIfname  string
-}
-
 func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
 
 	var inter BridgeInterfaces
@@ -214,16 +206,35 @@ func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
 }
 
 func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
+
+	SetHeader(&w)
+
 	vars := mux.Vars(r)["inter_name"]
 
 	for _,item := range File.PhysicalInterfaces {
 
 		if item.Name == vars{
 			b, _ := json.MarshalIndent(item, "", "	")
+
 			w.Write([]byte(b))
 			return
 		}
 	}
 
 
+}
+
+func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
+
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
+
+		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+	}
+
+	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
+
+
+	SetHeader(&w)
+
+	w.Write(b)
 }

@@ -1,45 +1,5 @@
 package main
 
-import (
-	"net/http"
-	"encoding/json"
-)
-
-type BasicInfo struct {
-	IpAddress        string
-	BroadcastAddress string
-	Gateway          string
-	MacAddress       string
-	RecvBytes        string
-	RecvPackts       string
-	TransBytes       string
-	TransPackts      string
-
-	ConntectedTo string
-	ApMacAddr    string
-	BitRate      string
-	Frequency    string
-	LinkQuality  string
-	Channel      string
-}
-
-func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
-
-	for i := 0; i < len(File.PhysicalInterfaces); i++ {
-
-		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
-	}
-
-	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
-
-
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	w.Write(b)
-}
-
 func GetPhysicalInterfaceInfo(netInt PhysicalInterfaces) BasicInfo {
 
 	info := GetCommonInterfaceInfo(netInt.Name)

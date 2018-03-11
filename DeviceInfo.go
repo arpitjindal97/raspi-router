@@ -6,30 +6,14 @@ import (
 	"encoding/json"
 )
 
-type OSInfo struct{
-	DistributionId	string
-	Description		string
-	Release			string
-	Codename		string
-	Hostname		string
-	KernelRelease	string
-	Architecture	string
-	ModelName		string
-	CPUs			string
-	LocalTime		string
-	TimeZone		string
-	UpTime			string
-	UpSince			string
-}
-
 func Handle_DeviceInfo(w http.ResponseWriter, r *http.Request) {
 
 	File.OSInfo = GetDeviceInfo()
 
 	b,_ := json.MarshalIndent(File.OSInfo,"","	")
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	SetHeader(&w)
 
 	w.Write(b)
 
