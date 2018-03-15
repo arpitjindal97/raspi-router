@@ -20,7 +20,7 @@ function LoadHtmlDiv(div_id, html_file) {
 }
 function fill_status_page() {
     LoadHtmlDiv("content_div", "device_info.html");
-    $.getJSON(server_ip + '/DeviceInfo', function (data) {
+    $.getJSON(server_ip + '/OSInfo', function (data) {
         document.getElementById("distID").innerHTML = data["DistributionId"];
         document.getElementById("desc").innerHTML = data["Description"];
         document.getElementById("release").innerHTML = data["Release"];

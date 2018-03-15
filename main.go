@@ -57,11 +57,11 @@ func main() {
 	//StartBridging()
 
 
-	muxHttp.PathPrefix("").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/static/"))))
+	muxHttp.PathPrefix("/static").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 
 	srv := &http.Server{
 		Handler:      muxHttp,
-		Addr:         "127.0.0.1:5000",
+		Addr:         "0.0.0.0:5000",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
