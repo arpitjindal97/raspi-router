@@ -32,6 +32,7 @@ type PhysicalInterfaces struct {
 	IpModes        	string
 	IpAddress      	string
 	SubnetMask     	string
+	Gateway     	string
 	Wpa            	string
 	Hostapd        	string
 	Dnsmasq        	string
