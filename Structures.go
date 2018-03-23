@@ -2,7 +2,7 @@ package main
 
 type ConfigFile struct {
 	OSInfo				OSInfo
-	PhysicalInterfaces	[]PhysicalInterfaces
+	PhysicalInterfaces	[]PhysicalInterface
 	BridgeInterfaces	[]BridgeInterfaces
 }
 
@@ -22,7 +22,7 @@ type OSInfo struct{
 	UpSince			string
 }
 
-type PhysicalInterfaces struct {
+type PhysicalInterface struct {
 	Name        	string
 	IsWifi     		string
 	Mode       		string
@@ -71,4 +71,8 @@ Channel      string
 type BridgeSlave struct {
 	BridgeIfname string
 	SlaveIfname  string
+}
+
+type JSONResponse struct {
+	Message		string
 }

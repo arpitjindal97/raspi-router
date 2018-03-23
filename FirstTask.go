@@ -76,9 +76,9 @@ func FirstTask() ConfigFile {
 	return file
 
 }
-func CreateDefaultInterface(name string) PhysicalInterfaces {
+func CreateDefaultInterface(name string) PhysicalInterface {
 
-	var name_default PhysicalInterfaces
+	var name_default PhysicalInterface
 	name_default.Name = name
 
 	str := GetOutput("iwconfig " + name)
@@ -196,7 +196,7 @@ func FormatInterfaceName(out string) []string {
 	return interfaceNames
 }
 
-func CorrectInterfaceMismatch( found []PhysicalInterfaces, actual []string) []PhysicalInterfaces {
+func CorrectInterfaceMismatch( found []PhysicalInterface, actual []string) []PhysicalInterface {
 
 	//removing from found
 	for i := 0; i < len(found); i++ {

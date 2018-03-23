@@ -1,6 +1,6 @@
 package main
 
-func GetPhysicalInterfaceInfo(netInt PhysicalInterfaces) BasicInfo {
+func GetPhysicalInterfaceInfo(netInt PhysicalInterface) BasicInfo {
 
 	info := GetCommonInterfaceInfo(netInt.Name)
 

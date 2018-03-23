@@ -5,6 +5,9 @@ import (
 	"os/exec"
 	"github.com/godbus/dbus"
 	"log"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 )
 
 func StartTheInterfaces() {
@@ -58,7 +61,7 @@ func StartTheInterfaces() {
 
 }
 
-func PhysicalInterStart(inter PhysicalInterfaces) string {
+func PhysicalInterStart(inter PhysicalInterface) string {
 
 	if inter.Name == "lo" {
 		log.Println("Ignoring " + inter.Name)
@@ -78,7 +81,7 @@ func PhysicalInterStart(inter PhysicalInterfaces) string {
 
 }
 
-func PhysicalInterStartEth(inter PhysicalInterfaces) string {
+func PhysicalInterStartEth(inter PhysicalInterface) string {
 
 	eth_thread[inter.Name] = "start"
 
@@ -95,6 +98,7 @@ func PhysicalInterStartEth(inter PhysicalInterfaces) string {
 			log.Println("Static IP addr assigned to " + inter.Name)
 
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+			ExecuteWait("route", "add" ,"default" ,"gw", inter.Gateway, inter.Name)
 		}
 	} else if inter.Mode == "hotspot" {
 		// Hotspot
@@ -120,7 +124,7 @@ func PhysicalInterStartEth(inter PhysicalInterfaces) string {
 
 	return inter.Name+" started"
 }
-func PhysicalInterDhcpEth(inter PhysicalInterfaces) {
+func PhysicalInterDhcpEth(inter PhysicalInterface) {
 
 	for eth_thread[inter.Name] == "start" {
 
@@ -134,7 +138,7 @@ func PhysicalInterDhcpEth(inter PhysicalInterfaces) {
 	}
 }
 
-func PhysicalInterStartWlan(inter PhysicalInterfaces) string {
+func PhysicalInterStartWlan(inter PhysicalInterface) string {
 	//Wifi Interface
 	dbus_objects[inter.Name] = make(chan *dbus.Signal, 10)
 
@@ -149,6 +153,7 @@ func PhysicalInterStartWlan(inter PhysicalInterfaces) string {
 
 			log.Println("Static IP addr assigned to " + inter.Name)
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
+			ExecuteWait("route", "add" ,"default" ,"gw", inter.Gateway, inter.Name)
 		}
 
 	} else if inter.Mode == "hotspot" {
@@ -187,7 +192,7 @@ func PhysicalInterStartWlan(inter PhysicalInterfaces) string {
 	}
 	return inter.Name+" started"
 }
-func PhysicalInterStop(inter PhysicalInterfaces) string {
+func PhysicalInterStop(inter PhysicalInterface) string {
 
 	if inter.IsWifi == "true" {
 
@@ -220,7 +225,7 @@ func PhysicalInterStop(inter PhysicalInterfaces) string {
 		Kill("dhcpcd.*" + inter.Name)
 		if inter.Mode == "hotspot" {
 
-			log.Println("Kiling Dnsmasq of " + inter.Name)
+			log.Println("Killing Dnsmasq of " + inter.Name)
 			Kill("dnsmasq.*" + inter.Name)
 
 			//clear old rules
@@ -232,3 +237,44 @@ func PhysicalInterStop(inter PhysicalInterfaces) string {
 	return inter.Name+" stopped"
 }
 
+func PhysicalInterSave (inter PhysicalInterface) string {
+
+	var orig *PhysicalInterface
+
+	for i:=0;i<len(File.PhysicalInterfaces);i++ {
+
+		if File.PhysicalInterfaces[i].Name == inter.Name {
+			orig = &File.PhysicalInterfaces[i]
+			break
+		}
+	}
+
+	*orig = inter
+	(*orig).Hostapd = ""
+	(*orig).Wpa = ""
+	(*orig).Dnsmasq = ""
+	(*orig).Info = BasicInfo{}
+
+	File.OSInfo = OSInfo{}
+
+	b, _ := json.MarshalIndent(File, "", "	")
+
+	ioutil.WriteFile("config/config.json", b, 0644)
+
+	(*orig).Hostapd = inter.Hostapd
+	(*orig).Wpa = inter.Wpa
+	(*orig).Dnsmasq = inter.Dnsmasq
+
+	if (*orig).IsWifi == "true" {
+
+		raw := []byte(inter.Hostapd)
+		ioutil.WriteFile("config/"+inter.Name+"_hostapd.conf", raw, os.FileMode(0644))
+
+		raw = []byte(inter.Wpa)
+		ioutil.WriteFile("config/"+inter.Name+"_wpa.conf", raw, os.FileMode(0644))
+	}
+	raw := []byte(inter.Dnsmasq)
+	ioutil.WriteFile("config/"+inter.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
+
+	return "Configuration Saved"
+}

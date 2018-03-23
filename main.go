@@ -30,9 +30,7 @@ func main() {
 	File = FirstTask()
 	muxHttp := mux.NewRouter()
 
-	muxHttp.HandleFunc("/api/PhysicalInterfaceStart",HandlePhysicalInterStart)
-	muxHttp.HandleFunc("/api/PhysicalInterfaceStop",HandlePhysicalInterStop)
-	muxHttp.HandleFunc("/api/PhysicalInterfaceSave",HandlePhysicalInterSave)
+	muxHttp.HandleFunc("/api/PhysicalInterfaceReconfigure",HandlePhysicalInterReconfigure)
 
 	muxHttp.HandleFunc("/api/PhysicalInterfaces",Handle_PhysicalInterface)
 	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}",Handle_PhysicalInterfaceName)
@@ -157,4 +155,10 @@ func SetHeader(w *http.ResponseWriter){
 
 	(*w).Header().Set("Content-Type", "application/json")
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
+func MakeJSON(str string) JSONResponse {
+	var json JSONResponse
+	json.Message = str
+	return json
 }

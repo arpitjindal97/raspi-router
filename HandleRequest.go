@@ -3,31 +3,13 @@ package main
 import (
 	"net/http"
 	"encoding/json"
-	"io/ioutil"
-	"os"
 	"github.com/gorilla/mux"
 )
 
-func HandlePhysicalInterStart(w http.ResponseWriter, r *http.Request) {
 
-	var inter PhysicalInterfaces
+func HandlePhysicalInterReconfigure(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
-	}
-
-	response := PhysicalInterStart(inter)
-
-	w.Write([]byte(response))
-}
-
-
-func HandlePhysicalInterStop(w http.ResponseWriter, r *http.Request) {
-
-	var inter PhysicalInterfaces
+	var inter PhysicalInterface
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -35,61 +17,25 @@ func HandlePhysicalInterStop(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
-	response := PhysicalInterStop(inter)
-
-	w.Write([]byte(response))
-}
-
-func HandlePhysicalInterSave (w http.ResponseWriter,r *http.Request) {
-	var inter PhysicalInterfaces
-
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
-	}
-
-	var orig *PhysicalInterfaces
 
 	for i:=0;i<len(File.PhysicalInterfaces);i++ {
 
 		if File.PhysicalInterfaces[i].Name == inter.Name {
-			orig = &File.PhysicalInterfaces[i]
+
+			_ = PhysicalInterStop(File.PhysicalInterfaces[i])
 			break
 		}
 	}
 
-	*orig = inter
-	(*orig).Hostapd = ""
-	(*orig).Wpa = ""
-	(*orig).Dnsmasq = ""
-	(*orig).Info = BasicInfo{}
+	response := PhysicalInterSave(inter)
 
-	File.OSInfo = OSInfo{}
+	response = PhysicalInterStart(inter)
 
-	b, _ := json.MarshalIndent(File, "", "	")
-
-	ioutil.WriteFile("config/config.json", b, 0644)
-
-	(*orig).Hostapd = inter.Hostapd
-	(*orig).Wpa = inter.Wpa
-	(*orig).Dnsmasq = inter.Dnsmasq
-
-	if (*orig).IsWifi == "true" {
-
-		raw := []byte(inter.Hostapd)
-		ioutil.WriteFile("config/"+inter.Name+"_hostapd.conf", raw, os.FileMode(0644))
-
-		raw = []byte(inter.Wpa)
-		ioutil.WriteFile("config/"+inter.Name+"_wpa.conf", raw, os.FileMode(0644))
-	}
-	raw := []byte(inter.Dnsmasq)
-	ioutil.WriteFile("config/"+inter.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
-
-	w.Write([]byte("Configuration saved"))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
+
 
 
 func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
@@ -105,7 +51,9 @@ func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterDelete(inter)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 
 }
 
@@ -122,7 +70,9 @@ func Handle_BridgeInterCreate(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterCreate(inter)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 
 func Handle_BridgeInterSave(w http.ResponseWriter,r *http.Request) {
@@ -142,7 +92,9 @@ func Handle_BridgeInterSave(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterSave(resp.BridgeInter,resp.Action)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 
 func Handle_BridgeInterStart(w http.ResponseWriter,r *http.Request) {
@@ -157,7 +109,9 @@ func Handle_BridgeInterStart(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterStart(inter)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 
 
@@ -173,7 +127,10 @@ func Handle_BridgeInterStop(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterStop(inter)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 func Handle_BridgeInterRemoveSlave(w http.ResponseWriter,r *http.Request) {
 
@@ -188,7 +145,9 @@ func Handle_BridgeInterRemoveSlave(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterRemoveSlave(inter_name)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
 	var inter BridgeSlave
@@ -202,7 +161,10 @@ func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterAddSlave(inter.BridgeIfname,inter.SlaveIfname)
 
-	w.Write([]byte(response))
+	SetHeader(&w)
+
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
 
 func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
@@ -211,12 +173,14 @@ func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
 
 	vars := mux.Vars(r)["inter_name"]
 
-	for _,item := range File.PhysicalInterfaces {
+	for i,item := range File.PhysicalInterfaces {
 
 		if item.Name == vars{
+
+			File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
 			b, _ := json.MarshalIndent(item, "", "	")
 
-			w.Write([]byte(b))
+			w.Write(b)
 			return
 		}
 	}

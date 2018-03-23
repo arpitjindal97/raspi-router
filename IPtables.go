@@ -1,6 +1,6 @@
 package main
 
-func IptablesCreate(inter PhysicalInterfaces) {
+func IptablesCreate(inter PhysicalInterface) {
 
 	if inter.Mode == "hotspot"{
 
@@ -14,7 +14,7 @@ func IptablesCreate(inter PhysicalInterfaces) {
 	}
 }
 
-func IptablesClear(old_inter PhysicalInterfaces) {
+func IptablesClear(old_inter PhysicalInterface) {
 
 	if old_inter.Mode == "hotspot" {
 		ExecuteWait("iptables","-t","nat","-D","POSTROUTING","-o",old_inter.NatInterface,"-j","MASQUERADE")

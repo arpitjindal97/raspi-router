@@ -213,7 +213,7 @@ function saveButtonClicked() {
         type: 'info'
     });
     $.post(server_ip + "/PhysicalInterfaceStop", JSON.stringify(current_inter), function (data, status) {
-        console.log(data);
+        console.log(data['Message']);
         $.notify({
             message: 'Saving Configuration of ' + current_inter.Name,
             icon: 'glyphicon glyphicon-info-sign',
@@ -221,7 +221,7 @@ function saveButtonClicked() {
             type: 'info'
         });
         $.post(server_ip + "/PhysicalInterfaceSave", JSON.stringify(objecttosend), function (data, status) {
-            console.log(data);
+            console.log(data['Message']);
             $.notify({
                 message: 'Starting Interface ' + objecttosend.Name,
                 icon: 'glyphicon glyphicon-info-sign',
@@ -229,7 +229,7 @@ function saveButtonClicked() {
                 type: 'info'
             });
             $.post(server_ip + "/PhysicalInterfaceStart", JSON.stringify(objecttosend), function (data, status) {
-                console.log(data);
+                console.log(data['Message']);
                 $.notify({
                     message: 'Successfully started interface ' + objecttosend.Name,
                     icon: 'glyphicon glyphicon-success-sign',
