@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/gobuffalo/packr"
 )
 
 
@@ -201,4 +202,21 @@ func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
 	SetHeader(&w)
 
 	w.Write(b)
+}
+func Handle_StaticFiles(w http.ResponseWriter, r *http.Request) {
+
+	box := packr.NewBox("./dist")
+
+	html, err := box.MustBytes(r.URL.Path)
+
+	if err != nil || r.URL.Path == "" {
+		w.Write(box.Bytes("index.html"))
+		return
+	}
+
+	if r.URL.Path[len(r.URL.Path)-3:] == "css" {
+		w.Header().Set("Content-Type", "text/css")
+	}
+
+	w.Write(html)
 }
