@@ -5,8 +5,6 @@ import (
 	"os/exec"
 	"encoding/json"
 	"github.com/godbus/dbus"
-	"os"
-	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"time"
@@ -19,13 +17,16 @@ var dbus_objects map[string]chan *dbus.Signal
 
 var eth_thread map[string]string
 
-var path = "/home/arpit/Desktop/workspace/angular/mdl/"
 
 func main() {
 
-	SetPath()
-
 	File = FirstTask()
+
+	dbus_objects = make(map[string]chan *dbus.Signal)
+	eth_thread = make(map[string]string)
+
+	go StartTheInterfaces()
+
 	muxHttp := mux.NewRouter()
 
 	muxHttp.HandleFunc("/api/PhysicalInterfaceReconfigure", HandlePhysicalInterReconfigure)
@@ -44,12 +45,6 @@ func main() {
 	muxHttp.HandleFunc("/api/BridgeInterAddSlave", Handle_BridgeInterAddSlave)
 
 	muxHttp.HandleFunc("/api", Index)
-
-	dbus_objects = make(map[string]chan *dbus.Signal)
-	eth_thread = make(map[string]string)
-
-	go StartTheInterfaces()
-
 
 	muxHttp.PathPrefix("/").Handler(  http.StripPrefix("/", http.HandlerFunc(Handle_StaticFiles)))
 
@@ -131,14 +126,9 @@ func Systemctl(action string, service_name string) {
 	go cmd.Wait()
 }
 
-func SetPath() {
+func GetPath() string {
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	path = pwd + "/"
+	return "/etc/raspi-router/"
 
 }
 

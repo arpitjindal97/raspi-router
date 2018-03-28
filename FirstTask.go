@@ -8,7 +8,7 @@ import (
 
 func FirstTask() ConfigFile {
 
-	raw, err := ioutil.ReadFile("config/config.json")
+	raw, err := ioutil.ReadFile(GetPath() + "config.json")
 
 	var file ConfigFile
 
@@ -18,12 +18,12 @@ func FirstTask() ConfigFile {
 		bb, _ := json.MarshalIndent(file, "", "	")
 
 		// make dir if not exists
-		_, err = ioutil.ReadDir("config")
+		_, err = ioutil.ReadDir(GetPath())
 		if err != nil {
-			os.Mkdir("config", 0755)
+			os.Mkdir(GetPath(), 0755)
 		}
 
-		ioutil.WriteFile("config/config.json", bb, 0666)
+		ioutil.WriteFile(GetPath() + "config.json", bb, 0666)
 		raw = bb
 	}
 
@@ -68,7 +68,7 @@ func FirstTask() ConfigFile {
 
 	b, _ := json.MarshalIndent(file, "", "	")
 
-	ioutil.WriteFile("config/config.json", b, 0666)
+	ioutil.WriteFile(GetPath() +"config.json", b, 0666)
 
 	// get wpa, hostapd and dnsmasq files
 	file = CaptureConfFiles(file)
@@ -104,7 +104,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 		name := file.PhysicalInterfaces[i].Name
 
 		// Dnsmasq
-		raw, err := ioutil.ReadFile("config/" + name + "_dnsmasq.conf")
+		raw, err := ioutil.ReadFile(GetPath() + name + "_dnsmasq.conf")
 		if err != nil {
 			str := "bind-interfaces\n" +
 				"server=8.8.8.8\n" +
@@ -114,7 +114,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_dnsmasq.conf", raw, os.FileMode(0644))
+			ioutil.WriteFile(GetPath()+name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
 		}
 		file.PhysicalInterfaces[i].Dnsmasq = string(raw)
@@ -124,7 +124,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 		}
 
 		// Hostapd
-		raw, err = ioutil.ReadFile("config/" + name + "_hostapd.conf")
+		raw, err = ioutil.ReadFile(GetPath() + name + "_hostapd.conf")
 		if err != nil {
 			str := "interface=" + name + "\n" +
 				"driver=nl80211\n" +
@@ -144,13 +144,13 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_hostapd.conf", raw, os.FileMode(0644))
+			ioutil.WriteFile(GetPath()+name+"_hostapd.conf", raw, os.FileMode(0644))
 
 		}
 		file.PhysicalInterfaces[i].Hostapd = string(raw)
 
 		// Wpa Supplicant
-		raw, err = ioutil.ReadFile("config/" + name + "_wpa.conf")
+		raw, err = ioutil.ReadFile(GetPath() + name + "_wpa.conf")
 		if err != nil {
 			str := "ctrl_interface=/run/wpa_supplicant\n" +
 				"update_config=1\n" +
@@ -161,7 +161,7 @@ func CaptureConfFiles(file ConfigFile) ConfigFile {
 
 			raw = []byte(str)
 
-			ioutil.WriteFile("config/"+name+"_wpa.conf", raw, os.FileMode(0644))
+			ioutil.WriteFile(GetPath()+name+"_wpa.conf", raw, os.FileMode(0644))
 
 		}
 		file.PhysicalInterfaces[i].Wpa = string(raw)

@@ -46,13 +46,13 @@ func StartTheInterfaces() {
 		PhysicalInterStart(File.PhysicalInterfaces[i])
 	}
 
-	for i:=0;i< len(File.BridgeInterfaces);i++ {
+	for i := 0; i < len(File.BridgeInterfaces); i++ {
 
 		BridgeInterCreate(File.BridgeInterfaces[i])
 
-		for _,slave := range File.BridgeInterfaces[i].Slaves {
+		for _, slave := range File.BridgeInterfaces[i].Slaves {
 
-			BridgeInterAddSlave(File.BridgeInterfaces[i].Name,slave)
+			BridgeInterAddSlave(File.BridgeInterfaces[i].Name, slave)
 		}
 
 		BridgeInterStart(File.BridgeInterfaces[i])
@@ -65,7 +65,7 @@ func PhysicalInterStart(inter PhysicalInterface) string {
 
 	if inter.Name == "lo" {
 		log.Println("Ignoring " + inter.Name)
-		return  ""
+		return ""
 	}
 
 	log.Println("Flushing the existing IP addr and Route of " + inter.Name)
@@ -98,7 +98,7 @@ func PhysicalInterStartEth(inter PhysicalInterface) string {
 			log.Println("Static IP addr assigned to " + inter.Name)
 
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-			ExecuteWait("route", "add" ,"default" ,"gw", inter.Gateway, inter.Name)
+			ExecuteWait("route", "add", "default", "gw", inter.Gateway, inter.Name)
 		}
 	} else if inter.Mode == "hotspot" {
 		// Hotspot
@@ -110,7 +110,7 @@ func PhysicalInterStartEth(inter PhysicalInterface) string {
 
 		//dnsmasq
 		log.Println("Dnsmasq started on " + inter.Name)
-		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", path+"config/"+inter.Name+"_dnsmasq.conf")
+		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", GetPath()+inter.Name+"_dnsmasq.conf")
 
 		//handle routing
 		log.Println("Configuring IP Tables for " + inter.Name)
@@ -122,7 +122,7 @@ func PhysicalInterStartEth(inter PhysicalInterface) string {
 		ExecuteWait("ip", "link", "set", inter.Name, "down")
 	}
 
-	return inter.Name+" started"
+	return inter.Name + " started"
 }
 func PhysicalInterDhcpEth(inter PhysicalInterface) {
 
@@ -145,7 +145,7 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 	if inter.Mode == "default" {
 
 		log.Println("WPA Supplicant on " + inter.Name)
-		DBusCreateInterface(inter.Name, "nl80211", path+"config/"+inter.Name+"_wpa.conf", inter)
+		DBusCreateInterface(inter.Name, "nl80211", GetPath()+inter.Name+"_wpa.conf", inter)
 
 		if inter.IpModes == "dhcp" {
 			DbusDhcpcdRoutine(inter)
@@ -153,13 +153,13 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 
 			log.Println("Static IP addr assigned to " + inter.Name)
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
-			ExecuteWait("route", "add" ,"default" ,"gw", inter.Gateway, inter.Name)
+			ExecuteWait("route", "add", "default", "gw", inter.Gateway, inter.Name)
 		}
 
 	} else if inter.Mode == "hotspot" {
 
 		log.Println("Hostapd started on " + inter.Name)
-		exec.Command("hostapd", path+"config/"+inter.Name+"_hostapd.conf").Start()
+		exec.Command("hostapd", GetPath()+inter.Name+"_hostapd.conf").Start()
 
 		log.Println("Static IP addr assigned to " + inter.Name)
 		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
@@ -167,7 +167,7 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 		//time.Sleep(time.Second*2)
 
 		log.Println("Dnsmasq started on " + inter.Name)
-		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", path+"config/"+inter.Name+"_dnsmasq.conf")
+		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", GetPath()+inter.Name+"_dnsmasq.conf")
 
 		log.Println("Configuring IP Tables for " + inter.Name)
 		IptablesCreate(inter)
@@ -177,12 +177,12 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 		if inter.BridgeMode == "wpa" {
 
 			log.Println("WPA Supplicant on " + inter.Name)
-			DBusCreateInterface(inter.Name, "nl80211", path+"config/"+inter.Name+"_wpa.conf", inter)
+			DBusCreateInterface(inter.Name, "nl80211", GetPath()+inter.Name+"_wpa.conf", inter)
 
 		} else if inter.BridgeMode == "hostapd" {
 
 			log.Println("Hostapd started on " + inter.Name)
-			exec.Command("hostapd", path+"config/"+inter.Name+"_hostapd.conf").Start()
+			exec.Command("hostapd", GetPath()+inter.Name+"_hostapd.conf").Start()
 		}
 
 	} else {
@@ -190,7 +190,7 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 		ExecuteWait("ip", "link", "set", inter.Name, "down")
 
 	}
-	return inter.Name+" started"
+	return inter.Name + " started"
 }
 func PhysicalInterStop(inter PhysicalInterface) string {
 
@@ -234,14 +234,14 @@ func PhysicalInterStop(inter PhysicalInterface) string {
 
 		}
 	}
-	return inter.Name+" stopped"
+	return inter.Name + " stopped"
 }
 
-func PhysicalInterSave (inter PhysicalInterface) string {
+func PhysicalInterSave(inter PhysicalInterface) string {
 
 	var orig *PhysicalInterface
 
-	for i:=0;i<len(File.PhysicalInterfaces);i++ {
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
 		if File.PhysicalInterfaces[i].Name == inter.Name {
 			orig = &File.PhysicalInterfaces[i]
@@ -259,7 +259,7 @@ func PhysicalInterSave (inter PhysicalInterface) string {
 
 	b, _ := json.MarshalIndent(File, "", "	")
 
-	ioutil.WriteFile("config/config.json", b, 0644)
+	ioutil.WriteFile(GetPath()+"config.json", b, 0644)
 
 	(*orig).Hostapd = inter.Hostapd
 	(*orig).Wpa = inter.Wpa
@@ -268,13 +268,13 @@ func PhysicalInterSave (inter PhysicalInterface) string {
 	if (*orig).IsWifi == "true" {
 
 		raw := []byte(inter.Hostapd)
-		ioutil.WriteFile("config/"+inter.Name+"_hostapd.conf", raw, os.FileMode(0644))
+		ioutil.WriteFile(GetPath()+inter.Name+"_hostapd.conf", raw, os.FileMode(0644))
 
 		raw = []byte(inter.Wpa)
-		ioutil.WriteFile("config/"+inter.Name+"_wpa.conf", raw, os.FileMode(0644))
+		ioutil.WriteFile(GetPath()+inter.Name+"_wpa.conf", raw, os.FileMode(0644))
 	}
 	raw := []byte(inter.Dnsmasq)
-	ioutil.WriteFile("config/"+inter.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
+	ioutil.WriteFile(GetPath()+inter.Name+"_dnsmasq.conf", raw, os.FileMode(0644))
 
 	return "Configuration Saved"
 }
