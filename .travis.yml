@@ -1,0 +1,11 @@
+language: go
+go:
+  - master
+install:
+  - go get -t ./...
+  - go get -t github.com/gobuffalo/packr/...
+before_script:
+  - env | sort
+  - chmod +x build.sh
+script:
+  - ./build.sh
