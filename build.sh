@@ -13,7 +13,7 @@ build() {
 
 update() {
     rm -rf dist
-    wget $(curl -s "https://api.github.com/repos/arpitjindal97/raspi-router-frontend/releases/latest" | grep browser_download_url | cut -d '"' -f 4)
+    wget https://github.com/arpitjindal97/raspi-router-frontend/releases/download/v1.0.0/raspi-router-frontend-v1.0.0.tar.gz
     tar -xvf raspi-router-frontend-*.tar.gz
     rm raspi-router-frontend-*.tar.gz
 }
