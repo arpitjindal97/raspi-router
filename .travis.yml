@@ -2,8 +2,7 @@ language: go
 go:
   - master
 install:
-  - go get -t -v ./...
-  - go get -t -v github.com/gobuffalo/packr/...
+  - echo "No install command"
 before_script:
   - env | sort
   - chmod +x build.sh

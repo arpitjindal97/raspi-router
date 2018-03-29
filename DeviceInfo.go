@@ -1,28 +1,9 @@
 package main
 
-import (
-	"net/http"
-
-	"encoding/json"
-)
-
-func Handle_DeviceInfo(w http.ResponseWriter, r *http.Request) {
-
-	File.OSInfo = GetDeviceInfo()
-
-	b,_ := json.MarshalIndent(File.OSInfo,"","	")
-
-
-	SetHeader(&w)
-
-	w.Write(b)
-
-}
-
-func GetDeviceInfo() OSInfo{
+func DeviceInfo() OSInfo {
 	var info OSInfo
 
-	go func () {
+	go func() {
 		info.DistributionId = GetOutput("lsb_release -i | awk '{print $3}'")
 		info.Description = GetOutput("lsb_release -d | cut -f1 --complement'")
 		info.Release = GetOutput(" lsb_release -r | cut -f2")
@@ -30,7 +11,7 @@ func GetDeviceInfo() OSInfo{
 
 	info.Codename = GetOutput(" lsb_release -c | cut -f2")
 
-	go func () {
+	go func() {
 		info.Hostname = GetOutput("hostname")
 		info.KernelRelease = GetOutput("uname -r")
 		info.Architecture = GetOutput("uname -m")

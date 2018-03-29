@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/godbus/dbus"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"time"
 )
@@ -16,7 +17,6 @@ var File ConfigFile
 var dbus_objects map[string]chan *dbus.Signal
 
 var eth_thread map[string]string
-
 
 func main() {
 
@@ -29,12 +29,13 @@ func main() {
 
 	muxHttp := mux.NewRouter()
 
-	muxHttp.HandleFunc("/api/PhysicalInterfaceReconfigure", HandlePhysicalInterReconfigure)
+	muxHttp.HandleFunc("/api", Index).Methods("GET")
+	muxHttp.HandleFunc("/api/OSInfo", GetDeviceInfo).Methods("GET")
+	muxHttp.HandleFunc("/api/PhysicalInterfaces", GetAllPhysicalInterfaces).Methods("GET")
 
-	muxHttp.HandleFunc("/api/PhysicalInterfaces", Handle_PhysicalInterface)
-	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}", Handle_PhysicalInterfaceName)
+	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}", GetPhysicalInterface).Methods("GET")
+	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}", PutPhysicalInterface).Methods("PUT")
 
-	muxHttp.HandleFunc("/api/OSInfo", Handle_DeviceInfo)
 
 	muxHttp.HandleFunc("/api/BridgeInterDelete", Handle_BridgeInterDelete)
 	muxHttp.HandleFunc("/api/BridgeInterCreate", Handle_BridgeInterCreate)
@@ -44,13 +45,19 @@ func main() {
 	muxHttp.HandleFunc("/api/BridgeInterRemoveSlave", Handle_BridgeInterRemoveSlave)
 	muxHttp.HandleFunc("/api/BridgeInterAddSlave", Handle_BridgeInterAddSlave)
 
-	muxHttp.HandleFunc("/api", Index)
 
-	muxHttp.PathPrefix("/").Handler(  http.StripPrefix("/", http.HandlerFunc(Handle_StaticFiles)))
+	muxHttp.PathPrefix("/").Handler(http.StripPrefix("/", http.HandlerFunc(GetStaticFiles))).Methods("GET")
+
+	c := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "PUT"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(muxHttp)
 
 	srv := &http.Server{
-		Handler:      muxHttp,
-		Addr:         "0.0.0.0:5000",
+		Handler: handler,
+		Addr:    "0.0.0.0:500",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
@@ -62,7 +69,7 @@ func main() {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	go func() { File.OSInfo = GetDeviceInfo() }()
+	go func() { File.OSInfo = DeviceInfo() }()
 
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
@@ -74,8 +81,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b, _ := json.MarshalIndent(File, "", "	")
-
-	SetHeader(&w)
 
 	w.Write(b)
 }
@@ -129,13 +134,6 @@ func Systemctl(action string, service_name string) {
 func GetPath() string {
 
 	return "/etc/raspi-router/"
-
-}
-
-func SetHeader(w *http.ResponseWriter) {
-
-	(*w).Header().Set("Content-Type", "application/json")
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
 func MakeJSON(str string) JSONResponse {

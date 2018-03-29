@@ -2,7 +2,9 @@
 
 
 build() {
-    packr
+    go get -t -v ./...
+    go get -t -v github.com/gobuffalo/packr/...
+    ${GOPATH}/bin/packr
     rm -rf bin
     mkdir bin
     GOOS=linux GOARCH=arm GOARM=7 go build -o bin/raspi-router-armv7
@@ -13,7 +15,7 @@ build() {
 
 update() {
     rm -rf dist
-    wget https://github.com/arpitjindal97/raspi-router-frontend/releases/download/v1.0.0/raspi-router-frontend-v1.0.0.tar.gz
+    wget https://github.com/arpitjindal97/raspi-router-frontend/releases/download/v1.0.1/raspi-router-frontend-v1.0.1.tar.gz
     tar -xvf raspi-router-frontend-*.tar.gz
     rm raspi-router-frontend-*.tar.gz
 }

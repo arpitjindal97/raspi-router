@@ -7,8 +7,7 @@ import (
 	"github.com/gobuffalo/packr"
 )
 
-
-func HandlePhysicalInterReconfigure(w http.ResponseWriter, r *http.Request) {
+func PutPhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
 	var inter PhysicalInterface
 
@@ -19,7 +18,7 @@ func HandlePhysicalInterReconfigure(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	for i:=0;i<len(File.PhysicalInterfaces);i++ {
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
 		if File.PhysicalInterfaces[i].Name == inter.Name {
 
@@ -32,14 +31,13 @@ func HandlePhysicalInterReconfigure(w http.ResponseWriter, r *http.Request) {
 
 	response = PhysicalInterStart(inter)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+
+	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
 
-
-
-func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterDelete(w http.ResponseWriter, r *http.Request) {
 
 	var inter BridgeInterfaces
 
@@ -52,14 +50,12 @@ func Handle_BridgeInterDelete(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterDelete(inter)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 
 }
 
-
-func Handle_BridgeInterCreate(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterCreate(w http.ResponseWriter, r *http.Request) {
 	var inter BridgeInterfaces
 
 	decoder := json.NewDecoder(r.Body)
@@ -71,16 +67,15 @@ func Handle_BridgeInterCreate(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterCreate(inter)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 }
 
-func Handle_BridgeInterSave(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterSave(w http.ResponseWriter, r *http.Request) {
 
-	type BridgeSaveActions struct{
+	type BridgeSaveActions struct {
 		BridgeInter BridgeInterfaces
-		Action		string
+		Action      string
 	}
 	var resp BridgeSaveActions
 
@@ -91,14 +86,13 @@ func Handle_BridgeInterSave(w http.ResponseWriter,r *http.Request) {
 		panic(err)
 	}
 
-	response := BridgeInterSave(resp.BridgeInter,resp.Action)
+	response := BridgeInterSave(resp.BridgeInter, resp.Action)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 }
 
-func Handle_BridgeInterStart(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterStart(w http.ResponseWriter, r *http.Request) {
 	var inter BridgeInterfaces
 
 	decoder := json.NewDecoder(r.Body)
@@ -110,13 +104,11 @@ func Handle_BridgeInterStart(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterStart(inter)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 }
 
-
-func Handle_BridgeInterStop(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterStop(w http.ResponseWriter, r *http.Request) {
 	var inter BridgeInterfaces
 
 	decoder := json.NewDecoder(r.Body)
@@ -128,12 +120,10 @@ func Handle_BridgeInterStop(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterStop(inter)
 
-	SetHeader(&w)
-
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 }
-func Handle_BridgeInterRemoveSlave(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterRemoveSlave(w http.ResponseWriter, r *http.Request) {
 
 	var inter_name string
 
@@ -146,11 +136,12 @@ func Handle_BridgeInterRemoveSlave(w http.ResponseWriter,r *http.Request) {
 
 	response := BridgeInterRemoveSlave(inter_name)
 
-	SetHeader(&w)
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+
+	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
-func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
+func Handle_BridgeInterAddSlave(w http.ResponseWriter, r *http.Request) {
 	var inter BridgeSlave
 
 	decoder := json.NewDecoder(r.Body)
@@ -160,23 +151,22 @@ func Handle_BridgeInterAddSlave(w http.ResponseWriter,r *http.Request) {
 		panic(err)
 	}
 
-	response := BridgeInterAddSlave(inter.BridgeIfname,inter.SlaveIfname)
-
-	SetHeader(&w)
+	response := BridgeInterAddSlave(inter.BridgeIfname, inter.SlaveIfname)
 
 	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+
+	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
 
-func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
+func GetPhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
-	SetHeader(&w)
-
+	w.Header().Set("Content-Type","application/json")
 	vars := mux.Vars(r)["inter_name"]
 
-	for i,item := range File.PhysicalInterfaces {
+	for i, item := range File.PhysicalInterfaces {
 
-		if item.Name == vars{
+		if item.Name == vars {
 
 			File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
 			b, _ := json.MarshalIndent(item, "", "	")
@@ -186,10 +176,9 @@ func Handle_PhysicalInterfaceName(w http.ResponseWriter,r *http.Request) {
 		}
 	}
 
-
 }
 
-func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
+func GetAllPhysicalInterfaces(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
@@ -198,12 +187,10 @@ func Handle_PhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
 
-
-	SetHeader(&w)
-
+	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
-func Handle_StaticFiles(w http.ResponseWriter, r *http.Request) {
+func GetStaticFiles(w http.ResponseWriter, r *http.Request) {
 
 	box := packr.NewBox("./dist")
 
@@ -219,4 +206,14 @@ func Handle_StaticFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(html)
+}
+func GetDeviceInfo(w http.ResponseWriter, r *http.Request) {
+
+	File.OSInfo = DeviceInfo()
+
+	b, _ := json.MarshalIndent(File.OSInfo, "", "	")
+
+	w.Header().Set("Content-Type","application/json")
+	w.Write(b)
+
 }
