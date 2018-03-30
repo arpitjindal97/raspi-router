@@ -4,7 +4,6 @@ import (
 	"time"
 	"os/exec"
 	"github.com/godbus/dbus"
-	"log"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -29,16 +28,16 @@ func StartTheInterfaces() {
 	PKill("hostapd")
 	PKill("dnsmasq")
 
-	log.Println("Enabling Packet Forwarding")
+	mylog.Println("Enabling Packet Forwarding")
 	EnableNAT()
-	log.Println("Clearing all existing rules of iptables")
+	mylog.Println("Clearing all existing rules of iptables")
 	IptablesClearAll()
 
 	time.Sleep(time.Second * 2)
 
 	for i := 0; i < len(File.PhysicalInterfaces); i++ {
 
-		log.Println("Starting up the interface " + File.PhysicalInterfaces[i].Name)
+		mylog.Println("Starting up the interface " + File.PhysicalInterfaces[i].Name)
 
 		ExecuteWait("ip", "link", "set", File.PhysicalInterfaces[i].Name, "up")
 		ExecuteWait("ip", "link", "set", File.PhysicalInterfaces[i].Name, "nomaster")
@@ -64,11 +63,11 @@ func StartTheInterfaces() {
 func PhysicalInterStart(inter PhysicalInterface) string {
 
 	if inter.Name == "lo" {
-		log.Println("Ignoring " + inter.Name)
+		mylog.Println("Ignoring " + inter.Name)
 		return ""
 	}
 
-	log.Println("Flushing the existing IP addr and Route of " + inter.Name)
+	mylog.Println("Flushing the existing IP addr and Route of " + inter.Name)
 
 	ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
 	ExecuteWait("ip", "route", "flush", "dev", inter.Name)
@@ -89,13 +88,13 @@ func PhysicalInterStartEth(inter PhysicalInterface) string {
 
 		if inter.IpModes == "dhcp" {
 
-			log.Println("Polling for Cable plugin on " + inter.Name)
+			mylog.Println("Polling for Cable plugin on " + inter.Name)
 			go PhysicalInterDhcpEth(inter)
 
 		} else {
 			//static Ip address
 
-			log.Println("Static IP addr assigned to " + inter.Name)
+			mylog.Println("Static IP addr assigned to " + inter.Name)
 
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
 			ExecuteWait("route", "add", "default", "gw", inter.Gateway, inter.Name)
@@ -104,16 +103,16 @@ func PhysicalInterStartEth(inter PhysicalInterface) string {
 		// Hotspot
 
 		//static IP
-		log.Println("Static IP addr assigned to " + inter.Name)
+		mylog.Println("Static IP addr assigned to " + inter.Name)
 
 		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
 
 		//dnsmasq
-		log.Println("Dnsmasq started on " + inter.Name)
+		mylog.Println("Dnsmasq started on " + inter.Name)
 		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", GetPath()+inter.Name+"_dnsmasq.conf")
 
 		//handle routing
-		log.Println("Configuring IP Tables for " + inter.Name)
+		mylog.Println("Configuring IP Tables for " + inter.Name)
 		IptablesCreate(inter)
 	} else if inter.Mode == "bridge" {
 
@@ -130,7 +129,7 @@ func PhysicalInterDhcpEth(inter PhysicalInterface) {
 
 		carrier := GetOutput("cat /sys/class/net/" + inter.Name + "/carrier")
 		if carrier == "1" {
-			log.Println("Cable Plugged in on interface " + inter.Name)
+			mylog.Println("Cable Plugged in on interface " + inter.Name)
 			go ExecuteWait("dhcpcd", "-q", "-w", "-t", "0", inter.Name)
 			return
 		}
@@ -144,44 +143,44 @@ func PhysicalInterStartWlan(inter PhysicalInterface) string {
 
 	if inter.Mode == "default" {
 
-		log.Println("WPA Supplicant on " + inter.Name)
+		mylog.Println("WPA Supplicant on " + inter.Name)
 		DBusCreateInterface(inter.Name, "nl80211", GetPath()+inter.Name+"_wpa.conf", inter)
 
 		if inter.IpModes == "dhcp" {
 			DbusDhcpcdRoutine(inter)
 		} else {
 
-			log.Println("Static IP addr assigned to " + inter.Name)
+			mylog.Println("Static IP addr assigned to " + inter.Name)
 			ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
 			ExecuteWait("route", "add", "default", "gw", inter.Gateway, inter.Name)
 		}
 
 	} else if inter.Mode == "hotspot" {
 
-		log.Println("Hostapd started on " + inter.Name)
+		mylog.Println("Hostapd started on " + inter.Name)
 		exec.Command("hostapd", GetPath()+inter.Name+"_hostapd.conf").Start()
 
-		log.Println("Static IP addr assigned to " + inter.Name)
+		mylog.Println("Static IP addr assigned to " + inter.Name)
 		ExecuteWait("ifconfig", inter.Name, inter.IpAddress, "netmask", inter.SubnetMask)
 
 		//time.Sleep(time.Second*2)
 
-		log.Println("Dnsmasq started on " + inter.Name)
+		mylog.Println("Dnsmasq started on " + inter.Name)
 		ExecuteWait("dnsmasq", "--user=root", "--interface="+inter.Name, "-C", GetPath()+inter.Name+"_dnsmasq.conf")
 
-		log.Println("Configuring IP Tables for " + inter.Name)
+		mylog.Println("Configuring IP Tables for " + inter.Name)
 		IptablesCreate(inter)
 
 	} else if inter.Mode == "bridge" {
 
 		if inter.BridgeMode == "wpa" {
 
-			log.Println("WPA Supplicant on " + inter.Name)
+			mylog.Println("WPA Supplicant on " + inter.Name)
 			DBusCreateInterface(inter.Name, "nl80211", GetPath()+inter.Name+"_wpa.conf", inter)
 
 		} else if inter.BridgeMode == "hostapd" {
 
-			log.Println("Hostapd started on " + inter.Name)
+			mylog.Println("Hostapd started on " + inter.Name)
 			exec.Command("hostapd", GetPath()+inter.Name+"_hostapd.conf").Start()
 		}
 
@@ -198,12 +197,12 @@ func PhysicalInterStop(inter PhysicalInterface) string {
 
 		if inter.Mode == "hotspot" {
 
-			log.Println("Killing Hostapd and Dnsmasq of " + inter.Name)
+			mylog.Println("Killing Hostapd and Dnsmasq of " + inter.Name)
 			Kill("hostapd.*" + inter.Name)
 			Kill("dnsmasq.*" + inter.Name)
 
 			//clear old rules
-			log.Println("Clearing IP table rules of " + inter.Name)
+			mylog.Println("Clearing IP table rules of " + inter.Name)
 			IptablesClear(inter)
 
 		} else if inter.Mode == "default" {
@@ -216,7 +215,7 @@ func PhysicalInterStop(inter PhysicalInterface) string {
 
 			} else if inter.BridgeMode == "hostapd" {
 
-				log.Println("Kiling Hostapd of " + inter.Name)
+				mylog.Println("Kiling Hostapd of " + inter.Name)
 				Kill("hostapd.*" + inter.Name)
 			}
 		}
@@ -225,11 +224,11 @@ func PhysicalInterStop(inter PhysicalInterface) string {
 		Kill("dhcpcd.*" + inter.Name)
 		if inter.Mode == "hotspot" {
 
-			log.Println("Killing Dnsmasq of " + inter.Name)
+			mylog.Println("Killing Dnsmasq of " + inter.Name)
 			Kill("dnsmasq.*" + inter.Name)
 
 			//clear old rules
-			log.Println("Clearing IP table rules of " + inter.Name)
+			mylog.Println("Clearing IP table rules of " + inter.Name)
 			IptablesClear(inter)
 
 		}
