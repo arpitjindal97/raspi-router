@@ -44,6 +44,7 @@ type BridgeInterfaces struct {
 	IpMode			string
 	IpAddress      	string
 	SubnetMask     	string
+	Gateway     	string
 	Info           	BasicInfo
 	Slaves			[]string
 }

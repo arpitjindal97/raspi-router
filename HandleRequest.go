@@ -5,7 +5,39 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/gobuffalo/packr"
+	"log"
 )
+
+func GetAllPhysicalInterfaces(w http.ResponseWriter, r *http.Request) {
+
+	for i := 0; i < len(File.PhysicalInterfaces); i++ {
+
+		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+	}
+
+	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
+
+	w.Header().Set("Content-Type","application/json")
+	w.Write(b)
+}
+func GetPhysicalInterface(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type","application/json")
+	vars := mux.Vars(r)["inter_name"]
+
+	for i, item := range File.PhysicalInterfaces {
+
+		if item.Name == vars {
+
+			File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+			b, _ := json.MarshalIndent(item, "", "	")
+
+			w.Write(b)
+			return
+		}
+	}
+
+}
 
 func PutPhysicalInterface(w http.ResponseWriter, r *http.Request) {
 
@@ -37,47 +69,38 @@ func PutPhysicalInterface(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func Handle_BridgeInterDelete(w http.ResponseWriter, r *http.Request) {
 
-	var inter BridgeInterfaces
+func GetAllBridgeInterfaces(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
+	for i := 0; i < len(File.BridgeInterfaces); i++ {
+		File.BridgeInterfaces[i].Info = GetCommonInterfaceInfo(File.BridgeInterfaces[i].Name)
 	}
 
-	response := BridgeInterDelete(inter)
+	b, _ := json.MarshalIndent(File.BridgeInterfaces, "", "	")
 
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
-	w.Write(b)
-
-}
-
-func Handle_BridgeInterCreate(w http.ResponseWriter, r *http.Request) {
-	var inter BridgeInterfaces
-
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
-	}
-
-	response := BridgeInterCreate(inter)
-
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
 
-func Handle_BridgeInterSave(w http.ResponseWriter, r *http.Request) {
+func GetBridgeInterfaces(w http.ResponseWriter, r *http.Request) {
 
-	type BridgeSaveActions struct {
-		BridgeInter BridgeInterfaces
-		Action      string
+	name := mux.Vars(r)["inter_name"]
+
+	var b []byte
+	b = nil
+	for  _,item := range File.BridgeInterfaces {
+		if  item.Name == name {
+			b,_ = json.MarshalIndent(item, "","	")
+			break
+		}
 	}
-	var resp BridgeSaveActions
+
+	w.Header().Set("Content-Type","application/json")
+	w.Write(b)
+}
+
+func PutBridgeInterfaces(w http.ResponseWriter, r *http.Request) {
+	var resp BridgeInterfaces
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -86,110 +109,64 @@ func Handle_BridgeInterSave(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	response := BridgeInterSave(resp.BridgeInter, resp.Action)
+	var b []byte
+	b = nil
+	log.Println("Creating Bridge ")
+	response := BridgeInterfaceCreate(resp)
+	_ = BridgeInterfaceStart(resp)
 
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
+	b, _ = json.MarshalIndent(MakeJSON(response), "", "	")
 	w.Write(b)
 }
 
-func Handle_BridgeInterStart(w http.ResponseWriter, r *http.Request) {
-	var inter BridgeInterfaces
+func PatchBridgeInterfaces(w http.ResponseWriter, r *http.Request) {
+	var resp BridgeInterfaces
 
 	decoder := json.NewDecoder(r.Body)
 
-	err := decoder.Decode(&inter)
+	err := decoder.Decode(&resp)
 	if err != nil {
 		panic(err)
 	}
 
-	response := BridgeInterStart(inter)
-
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
-	w.Write(b)
-}
-
-func Handle_BridgeInterStop(w http.ResponseWriter, r *http.Request) {
-	var inter BridgeInterfaces
-
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
-	}
-
-	response := BridgeInterStop(inter)
-
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
-	w.Write(b)
-}
-func Handle_BridgeInterRemoveSlave(w http.ResponseWriter, r *http.Request) {
-
-	var inter_name string
-
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter_name)
-	if err != nil {
-		panic(err)
-	}
-
-	response := BridgeInterRemoveSlave(inter_name)
-
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
-
-	w.Header().Set("Content-Type","application/json")
-	w.Write(b)
-}
-func Handle_BridgeInterAddSlave(w http.ResponseWriter, r *http.Request) {
-	var inter BridgeSlave
-
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&inter)
-	if err != nil {
-		panic(err)
-	}
-
-	response := BridgeInterAddSlave(inter.BridgeIfname, inter.SlaveIfname)
-
-	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
-
-	w.Header().Set("Content-Type","application/json")
-	w.Write(b)
-}
-
-func GetPhysicalInterface(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set("Content-Type","application/json")
-	vars := mux.Vars(r)["inter_name"]
-
-	for i, item := range File.PhysicalInterfaces {
-
-		if item.Name == vars {
-
-			File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
-			b, _ := json.MarshalIndent(item, "", "	")
-
-			w.Write(b)
-			return
+	for _,item := range File.BridgeInterfaces {
+		if item.Name == resp.Name {
+			_ = BridgeInterfaceStop(item)
+			break
 		}
 	}
 
+	var b []byte
+	b = nil
+
+	response := BridgeInterfaceUpdate(resp)
+	response = BridgeInterfaceStart(resp)
+
+	b, _ = json.MarshalIndent(MakeJSON(response), "", "	")
+	w.Write(b)
 }
+func DeleteBridgeInterfaces(w http.ResponseWriter, r *http.Request) {
 
-func GetAllPhysicalInterfaces(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["inter_name"]
 
-	for i := 0; i < len(File.PhysicalInterfaces); i++ {
+	var response string
 
-		File.PhysicalInterfaces[i].Info = GetPhysicalInterfaceInfo(File.PhysicalInterfaces[i])
+	for _,item := range File.BridgeInterfaces {
+		if item.Name == name {
+			_ = BridgeInterfaceStop(item)
+			response = BridgeInterfaceDelete(item)
+			break
+		}
 	}
 
-	b, _ := json.MarshalIndent(File.PhysicalInterfaces, "", "	")
+
+	b, _ := json.MarshalIndent(MakeJSON(response), "", "	")
 
 	w.Header().Set("Content-Type","application/json")
 	w.Write(b)
 }
+
+
 func GetStaticFiles(w http.ResponseWriter, r *http.Request) {
 
 	box := packr.NewBox("./dist")

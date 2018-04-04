@@ -54,13 +54,11 @@ func main() {
 	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}", GetPhysicalInterface).Methods("GET")
 	muxHttp.HandleFunc("/api/PhysicalInterfaces/{inter_name}", PutPhysicalInterface).Methods("PUT")
 
-	muxHttp.HandleFunc("/api/BridgeInterDelete", Handle_BridgeInterDelete)
-	muxHttp.HandleFunc("/api/BridgeInterCreate", Handle_BridgeInterCreate)
-	muxHttp.HandleFunc("/api/BridgeInterSave", Handle_BridgeInterSave)
-	muxHttp.HandleFunc("/api/BridgeInterStart", Handle_BridgeInterStart)
-	muxHttp.HandleFunc("/api/BridgeInterStop", Handle_BridgeInterStop)
-	muxHttp.HandleFunc("/api/BridgeInterRemoveSlave", Handle_BridgeInterRemoveSlave)
-	muxHttp.HandleFunc("/api/BridgeInterAddSlave", Handle_BridgeInterAddSlave)
+	muxHttp.HandleFunc("/api/BridgeInterfaces", GetAllBridgeInterfaces)
+	muxHttp.HandleFunc("/api/BridgeInterfaces/{inter_name}", GetBridgeInterfaces).Methods("GET")
+	muxHttp.HandleFunc("/api/BridgeInterfaces/{inter_name}", PutBridgeInterfaces).Methods("PUT")
+	muxHttp.HandleFunc("/api/BridgeInterfaces/{inter_name}", PatchBridgeInterfaces).Methods("PATCH")
+	muxHttp.HandleFunc("/api/BridgeInterfaces/{inter_name}", DeleteBridgeInterfaces).Methods("DELETE")
 
 	muxHttp.PathPrefix("/").Handler(http.StripPrefix("/", http.HandlerFunc(GetStaticFiles))).Methods("GET")
 
@@ -104,6 +102,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func GetOutput(command string) string {
 	out, _ := exec.Command("sh", "-c", command).Output()
 	str := string(out)
+	log.Println(str)
 	if str == "" {
 		return ""
 	}

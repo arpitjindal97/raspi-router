@@ -47,14 +47,9 @@ func StartTheInterfaces() {
 
 	for i := 0; i < len(File.BridgeInterfaces); i++ {
 
-		BridgeInterCreate(File.BridgeInterfaces[i])
+		BridgeInterfaceCreate(File.BridgeInterfaces[i])
 
-		for _, slave := range File.BridgeInterfaces[i].Slaves {
-
-			BridgeInterAddSlave(File.BridgeInterfaces[i].Name, slave)
-		}
-
-		BridgeInterStart(File.BridgeInterfaces[i])
+		BridgeInterfaceStart(File.BridgeInterfaces[i])
 
 	}
 

@@ -4,9 +4,25 @@ import (
 	"strings"
 	"io/ioutil"
 	"encoding/json"
+	"log"
 )
 
-func BridgeInterStart(inter BridgeInterfaces) string {
+func BridgeInterfaceStart(inter BridgeInterfaces) string {
+
+	GetOutput("ip link set dev " + inter.Name + " up")
+
+	out := GetOutput("ip link ls " + inter.Name + " | grep UP")
+
+	if strings.Contains(out, "does not exists") == true {
+
+		return "Error encountered while starting " + inter.Name
+
+	}
+
+	for _, item := range inter.Slaves {
+
+		ExecuteWait("ip", "link", "set", item, inter.Name)
+	}
 
 	if inter.IpMode == "dhcp" {
 		if len(inter.Slaves) == 0 {
@@ -23,29 +39,34 @@ func BridgeInterStart(inter BridgeInterfaces) string {
 
 }
 
-func BridgeInterCreate(inter BridgeInterfaces) string {
+func BridgeInterfaceCreate(inter BridgeInterfaces) string {
 
 	out := GetOutput("ip link ls " + inter.Name)
 
+	log.Println(out + " " + inter.Name)
+
 	if strings.Contains(out, "does not exist") == false {
-		GetOutput("ip link add name " + inter.Name + " type bridge")
+		return "Error! interface already exists"
 	}
 
-	GetOutput("ip link set dev " + inter.Name + " up")
+	GetOutput("ip link add name " + inter.Name + " type bridge")
 
-	out = GetOutput("ip link ls " + inter.Name + " | grep UP")
+	raw, _ := ioutil.ReadFile("config/config.json")
+	var file ConfigFile
+	json.Unmarshal(raw, &file)
 
-	if strings.Contains(out, "does not exists") == true {
+	file.BridgeInterfaces = append(file.BridgeInterfaces,inter)
 
-		return "Error encountered while creating " + inter.Name
+	b, _ := json.MarshalIndent(file, "", "	")
+	ioutil.WriteFile("config/config.json", b, 0644)
 
-	}
+	File.BridgeInterfaces = file.BridgeInterfaces
 
-	return inter.Name + " created and up"
+	return inter.Name + " created"
 
 }
 
-func BridgeInterDelete(inter BridgeInterfaces) string {
+func BridgeInterfaceDelete(inter BridgeInterfaces) string {
 
 	out := GetOutput("ip link ls " + inter.Name)
 
@@ -54,9 +75,26 @@ func BridgeInterDelete(inter BridgeInterfaces) string {
 
 	}
 
+	// update config file and File instance
+	raw, _ := ioutil.ReadFile("config/config.json")
+	var file ConfigFile
+	json.Unmarshal(raw, &file)
+	for i := 0; i < len(file.BridgeInterfaces); i++ {
+
+		if file.BridgeInterfaces[i].Name == inter.Name {
+
+			file.BridgeInterfaces = append(file.BridgeInterfaces[:i], file.BridgeInterfaces[i+1:]...)
+			break
+		}
+	}
+	b, _ := json.MarshalIndent(file, "", "	")
+	ioutil.WriteFile("config/config.json", b, 0644)
+	File.BridgeInterfaces = file.BridgeInterfaces
+
 	GetOutput("ip link del " + inter.Name)
 
 	out = GetOutput("ip link ls " + inter.Name)
+
 	if strings.Contains(out, "does not exist") == true {
 		return inter.Name + " successfully deleted"
 	} else {
@@ -66,66 +104,19 @@ func BridgeInterDelete(inter BridgeInterfaces) string {
 	return inter.Name + " deleted"
 }
 
-func BridgeInterRemoveSlave(slave_inter string) string {
-
-	GetOutput("ip link set " + slave_inter + " nomaster")
-
-	return slave_inter + " removed"
-
-}
-
-func BridgeInterAddSlave(bridge_inter string, slave_inter string) string {
-
-	GetOutput("ip link set " + slave_inter + " master " + bridge_inter)
-
-	return slave_inter + " added to " + bridge_inter
-
-}
-func BridgeInterSave(inter BridgeInterfaces, action string) string {
+func BridgeInterfaceUpdate(inter BridgeInterfaces) string {
 
 	raw, _ := ioutil.ReadFile("config/config.json")
 	var file ConfigFile
 	json.Unmarshal(raw, &file)
 
-	if action == "add" {
+	for i := 0; i < len(file.BridgeInterfaces); i++ {
 
-		var new_bridge BridgeInterfaces
-		new_bridge.Name = inter.Name
-		new_bridge.IpMode = "dhcp"
-		new_bridge.Slaves = []string{}
-		file.BridgeInterfaces = append(file.BridgeInterfaces[:], new_bridge)
+		if file.BridgeInterfaces[i].Name == inter.Name {
 
-	} else if action == "delete" {
-
-		for i := 0; i < len(file.BridgeInterfaces); i++ {
-
-			if file.BridgeInterfaces[i].Name == inter.Name {
-
-				file.BridgeInterfaces = append(file.BridgeInterfaces[:i], file.BridgeInterfaces[i+1:]...)
-				break
-			}
+			file.BridgeInterfaces[i] = inter
+			break
 		}
-
-		for i := 0; i < len(file.PhysicalInterfaces); i++ {
-			if file.PhysicalInterfaces[i].BridgeMaster == inter.Name {
-				file.PhysicalInterfaces[i].BridgeMaster = ""
-				File.PhysicalInterfaces[i].BridgeMaster = ""
-				break
-			}
-		}
-
-	} else if action == "update" {
-		for i := 0; i < len(file.BridgeInterfaces); i++ {
-
-			if file.BridgeInterfaces[i].Name == inter.Name {
-
-				file.BridgeInterfaces[i] = inter
-				break
-			}
-		}
-
-	} else
-	{
 	}
 
 	b, _ := json.MarshalIndent(file, "", "	")
@@ -136,20 +127,29 @@ func BridgeInterSave(inter BridgeInterfaces, action string) string {
 	return "Configuration saved"
 }
 
-func BridgeInterStop(inter BridgeInterfaces) string {
+func BridgeInterfaceStop(inter BridgeInterfaces) string {
+
+	for _, item := range inter.Slaves {
+
+		ExecuteWait("ip", "link", "set", item, "nomaster")
+	}
+
+	var message string
 
 	if inter.IpMode == "dhcp" {
 		if len(inter.Slaves) == 0 {
-			return "dhcpcd not active"
+			message = "dhcpcd not active"
 		}
 
 		Kill("dhcpcd.*" + inter.Name)
 
-		return "dhcpcd killed"
+		message = "dhcpcd killed"
 	} else {
 
 		ExecuteWait("ip", "addr", "flush", "dev", inter.Name)
-		return "Flushed static Ip addr"
+		message = "Flushed static Ip addr"
 	}
 
+	GetOutput("ip link set dev " + inter.Name + " down")
+	return message
 }
